@@ -9,6 +9,7 @@ body {
 
 .page {
     min-height: 100vh;
+    padding: 20px 0;
     background: linear-gradient(120deg, #6f7cf7 0%, #4facfe 100%);
     display: flex;
     flex-direction: column;
@@ -52,13 +53,6 @@ body {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
-.status {
-    text-align: center;
-    color: #16a34a;
-    font-size: 14px;
-    margin-bottom: 16px;
-}
-
 .form-group {
     margin-bottom: 20px;
 }
@@ -71,6 +65,7 @@ label {
     font-weight: 500;
 }
 
+input[type="text"],
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -120,6 +115,17 @@ input:focus {
     color: #4f46e5;
 }
 
+.eye-icon {
+    width: 20px;
+    height: 20px;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover .eye-icon {
+    color: #4f46e5;
+}
+
 .hidden {
     display: none;
 }
@@ -129,24 +135,6 @@ input:focus {
     margin-top: 6px;
     font-size: 12px;
     color: #dc2626;
-}
-
-.form-row {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-
-.link {
-    color: #4f46e5;
-    text-decoration: none;
-}
-
-.link:hover {
-    text-decoration: underline;
-    font-weight: 600;
 }
 
 .btn-primary {
@@ -191,22 +179,6 @@ input:focus {
 .zoom-in {
     animation: zoomIn 0.7s ease-out forwards;
 }
-
-.eye-icon {
-    width: 20px;
-    height: 20px;
-    color: #9ca3af;
-    transition: color 0.2s;
-}
-
-.toggle-password:hover .eye-icon {
-    color: #4f46e5;
-}
-
-.hidden {
-    display: none;
-}
-
 
 @keyframes fadeUp {
     from {

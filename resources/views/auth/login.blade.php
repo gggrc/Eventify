@@ -5,7 +5,7 @@
     <title>Log in</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,900;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
 <body>
 
@@ -13,7 +13,7 @@
     <div class="overlay"></div>
 
     <div class="header fade-up">
-        <h1>Let’s get started now!</h1>
+        <h1>Let's get started now!</h1>
         <p>Or create an account if not registered yet</p>
     </div>
 
@@ -28,7 +28,6 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            {{-- EMAIL --}}
             <div class="form-group">
                 <label for="email">Email</label>
                 <input
@@ -61,7 +60,7 @@
                             class="toggle-password"
                             onclick="togglePassword()"
                             aria-label="Toggle password">
-                        {{-- eye open --}}
+                            
                         <svg id="eye-open" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,7 +72,6 @@
                                     -4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
 
-                        {{-- eye closed --}}
                         <svg id="eye-closed" class="hidden"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">

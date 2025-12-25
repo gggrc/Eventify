@@ -1,25 +1,54 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forgot Password</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/forgotpass.css') }}">
+</head>
+<body>
+
+<div class="page">
+    <div class="overlay"></div>
+
+    <div class="header fade-up">
+        <h1>Forgot your password?</h1>
+        <p>Enter your email and we'll send a password reset link</p>
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="card zoom-in">
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
+        @if (session('status'))
+            <div class="status">
+                {{ session('status') }}
+            </div>
+        @endif
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('password.email') }}">
+            @csrf
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="mail@mail.com"
+                    required
+                    autofocus
+                >
+                @error('email')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn-primary">Send Reset Link</button>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>
