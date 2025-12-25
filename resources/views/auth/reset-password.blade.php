@@ -23,7 +23,6 @@
             @csrf
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            {{-- Email --}}
             <div class="form-group">
                 <label for="email">Email</label>
                 <input
@@ -40,7 +39,6 @@
                 @enderror
             </div>
 
-            {{-- Password --}}
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="password-wrapper">
@@ -86,7 +84,6 @@
                 @enderror
             </div>
 
-            {{-- Confirm Password --}}
             <div class="form-group">
                 <label for="password_confirmation">Confirm Password</label>
                 <div class="password-wrapper">

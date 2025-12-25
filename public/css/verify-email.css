@@ -106,7 +106,6 @@ body {
     color: #111827;
 }
 
-/* Animations */
 .fade-up {
     animation: fadeUp 0.7s ease-out forwards;
 }

@@ -140,7 +140,6 @@ input:focus {
     background: #3730a3;
 }
 
-/* Animations */
 .fade-up {
     animation: fadeUp 0.7s ease-out forwards;
 }
