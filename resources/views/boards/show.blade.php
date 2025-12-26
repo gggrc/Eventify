@@ -1,53 +1,159 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Board: {{ $board->title }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex gap-4 overflow-x-auto pb-4">
-                @foreach($lists as $list)
-                    <div class="bg-gray-200 p-4 rounded-lg min-w-[250px]">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold">{{ $list->title }}</h3>
-                            <form action="{{ route('lists.destroy', $list) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-500 text-sm">Hapus</button>
-                            </form>
-                        </div>
-
-                        <div class="space-y-2">
-                            @foreach($list->cards as $card)
-                                <div class="bg-white p-2 rounded shadow flex justify-between">
-                                    <span>{{ $card->title }}</span>
-                                    <form action="{{ route('cards.destroy', $card) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-gray-400">×</button>
-                                    </form>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <form action="{{ route('cards.store', $list) }}" method="POST" class="mt-4">
-                            @csrf
-                            <input type="text" name="title" placeholder="Tambah kartu..." class="w-full text-sm rounded border-gray-300">
-                            <button type="submit" class="mt-2 text-blue-600 text-sm w-full text-left">+ Tambah Kartu</button>
-                        </form>
-                    </div>
-                @endforeach
-
-                <div class="min-w-[250px]">
-                    <form action="{{ route('lists.store', $board) }}" method="POST" class="bg-gray-100 p-4 rounded-lg">
-                        @csrf
-                        <input type="text" name="title" placeholder="Nama list baru..." class="w-full text-sm rounded border-gray-300">
-                        <button type="submit" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm w-full">Tambah List</button>
-                    </form>
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movadex Project</title>
+    <link rel="stylesheet" href="{{ asset('css/cardlist.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h2>Movadex Project <i class="fa-solid fa-chevron-down"></i></h2>
+                <input type="text" placeholder="Search here" />
             </div>
-        </div>
+
+            <div class="topbar-right">
+                <button class="btn-icon"><i class="fa-solid fa-plus"></i></button>
+
+                <button class="btn-filter">
+                    <i class="fa-solid fa-list"></i>
+                    <i class="fa-solid fa-grip"></i>
+                </button>
+
+                <select class="task-filter">
+                    <option>All tasks</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="kanban-board">
+            <section class="kanban-column purple">
+                <div class="column-header">
+                    <h3>Design <span>3</span></h3>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+
+                <div class="card high">
+                    <p class="title">Create a preview for the last article from our blog</p>
+                    <div class="meta">
+                        <span>Tomorrow 16:00</span>
+                        <span class="badge high">High</span>
+                    </div>
+                </div>
+
+                <div class="card medium">
+                    <p class="title">Motion and Static Ads for Instagram and Facebook</p>
+                    <div class="meta">
+                        <span>Today 11:00</span>
+                        <span class="badge medium">Medium</span>
+                    </div>
+                </div>
+
+                <div class="card low">
+                    <p class="title">Icons design for the landing page</p>
+                    <div class="meta">
+                        <span>Thursday 09:00</span>
+                        <span class="badge low">Low</span>
+                    </div>
+                </div>
+
+                <button class="add-task">+ Add new task</button>
+            </section>
+
+            <section class="kanban-column blue">
+                <div class="column-header">
+                    <h3>Front-End <span>3</span></h3>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+
+                <div class="card high">
+                    <p class="title">Fix switching between pages on the User profile</p>
+                    <div class="meta">
+                        <span>Today 11:00</span>
+                        <span class="badge high">High</span>
+                    </div>
+                </div>
+
+                <div class="card low">
+                    <p class="title">Implement design on the new landing</p>
+                    <div class="meta">
+                        <span>Wednesday 11:00</span>
+                        <span class="badge low">Low</span>
+                    </div>
+                </div>
+
+                <div class="card medium">
+                    <p class="title">Make background white and add picture to About Us</p>
+                    <div class="meta">
+                        <span>Today 09:00</span>
+                        <span class="badge medium">Medium</span>
+                    </div>
+                </div>
+
+                <button class="add-task">+ Add new task</button>
+            </section>
+
+            <section class="kanban-column orange">
+                <div class="column-header">
+                    <h3>Back-End <span>2</span></h3>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+
+                <div class="card high">
+                    <p class="title">Create API keys generator platform</p>
+                    <div class="meta">
+                        <span>Today 13:00</span>
+                        <span class="badge high">High</span>
+                    </div>
+                </div>
+
+                <div class="card medium">
+                    <p class="title">Add endpoints for new artist</p>
+                    <div class="meta">
+                        <span>Today 13:00</span>
+                        <span class="badge medium">Medium</span>
+                    </div>
+                </div>
+
+                <button class="add-task">+ Add new task</button>
+            </section>
+
+            <section class="kanban-column red">
+                <div class="column-header">
+                    <h3>Testing <span>3</span></h3>
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+
+                <div class="card high">
+                    <p class="title">Test user contact form (ISSUE-34)</p>
+                    <div class="meta">
+                        <span>Today 09:00</span>
+                        <span class="badge high">High</span>
+                    </div>
+                </div>
+
+                <div class="card medium">
+                    <p class="title">Pass testcases pm company page</p>
+                    <div class="meta">
+                        <span>Today 14:00</span>
+                        <span class="badge medium">Medium</span>
+                    </div>
+                </div>
+
+                <div class="card low">
+                    <p class="title">Pass testcases on landing page</p>
+                    <div class="meta">
+                        <span>Thursday 12:30</span>
+                        <span class="badge low">Low</span>
+                    </div>
+                </div>
+
+                <button class="add-task">+ Add new task</button>
+            </section>
+
+        </main>
     </div>
-</x-app-layout>
+</body>
+</html>

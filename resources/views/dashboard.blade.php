@@ -39,12 +39,11 @@
         <div class="dashboard-title-section">
             <div>
                 <h1>My Projects</h1>
-                <p>Manage your events and task boards</p>
             </div>
 
             <form action="{{ route('boards.store') }}" method="POST" class="create-project-form">
                 @csrf
-                <input type="text" name="title" placeholder="Project Name..." required class="project-input" oninvalid="this.setCustomValidity('Project name cannot be empty!')">
+                <input type="text" name="title" placeholder="Project Name..." required class="project-input">
                 <button type="submit" class="btn-create-project">
                     <i class="fa-solid fa-plus"></i>New Project
                 </button>
@@ -60,7 +59,7 @@
                             <span class="status-badge">Active</span>
                         </div>
 
-                        <p class="card-description">Manage columns and tasks for this event.</p>
+                        <p class="card-description">Manage this project.</p>
 
                         <div class="card-footer">
                             <div class="owner-info">
