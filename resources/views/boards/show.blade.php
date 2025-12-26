@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $board->title }} - Eventify</title>
     <link rel="stylesheet" href="{{ asset('css/cardlist.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         .dragging { opacity: 0.5; cursor: grabbing; }
         .dragging-column { opacity: 0.4; border: 2px dashed #ccc; }
@@ -14,14 +18,57 @@
         .add-task-form, .add-list-form { display: none; margin-top: 10px; }
         .add-task-input { width: 100%; border: 1px solid #ddd; padding: 8px; border-radius: 5px; outline: none; }
         .kanban-column { cursor: grab; }
+        
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .dashboard-header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
+        <header class="dashboard-header">
+            <div class="logo">Eventify</div>
+
+            <div class="user-menu">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        <button class="flex items-center gap-2 border-none bg-transparent cursor-pointer">
+                            <div class="user-name">{{ Auth::user()->name }}</div>
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="header-avatar" style="width: 32px; height: 32px; border-radius: 50%;">
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
+                        
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+            </div>
+        </header>
+
         <header class="topbar">
             <div class="topbar-left">
-                <h2>{{ $board->title }} <i class="fa-solid fa-chevron-down"></i></h2>
-                <input type="text" placeholder="Search here" />
+                <h2>{{ $board->title }}</h2>
             </div>
             <div class="topbar-right">
                 <a href="{{ route('dashboard') }}" class="btn-back">Back to Dashboard</a>
@@ -83,7 +130,6 @@
             if(form.style.display === 'block') form.querySelector('input').focus();
         }
 
-        // --- Drag & Drop Cards ---
         const cards = document.querySelectorAll('.card');
         const lists = document.querySelectorAll('.cards-area');
 
@@ -115,7 +161,6 @@
             });
         });
 
-        // --- Drag & Drop Columns ---
         const columns = document.querySelectorAll('.column-draggable');
         const container = document.getElementById('kanban-container');
 
