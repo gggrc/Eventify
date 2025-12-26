@@ -1,0 +1,297 @@
+body {
+    background-color: #f9fafb;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+}
+
+.dashboard-header {
+    padding: 1rem 6%;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-weight: 900;
+    font-size: 2rem;
+    color: #4F46E5;
+}
+
+.user-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+.dashboard-main {
+    padding: 2rem 8%;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.dashboard-title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+}
+
+.dashboard-title-section h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.dashboard-title-section p {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.create-project-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.project-input {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px 14px;
+    width: 300px;
+    font-size: 1rem;
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+.btn-create-project {
+    background: #4F46E5;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.btn-create-project:hover {
+    background: #4338CA;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.project-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.card-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #4F46E5;
+    margin: 0;
+}
+
+.status-badge {
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 0.75rem;
+    padding: 3px 7px;
+    border-radius: 99px;
+    font-weight: 600;
+}
+
+.card-description {
+    color: #6B7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.card-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.owner-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.owner-avatar {
+    width: 28px;
+    height: 28px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.owner-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.card-arrow {
+    width: 18px;
+    height: 18px;
+    color: #d1d5db;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    background: white;
+    border: 2px dashed #e5e7eb;
+    border-radius: 15px;
+}
+
+.dashboard-footer {
+    text-align: center;
+    padding: 3rem;
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-main {
+        padding: 1rem 3%;
+    }
+    .dashboard-header, 
+    .dashboard-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .create-project-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .project-input,
+    .btn-create-project {
+        width: 100%;
+    }
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-header {
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+
+    .dashboard-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .create-project-form {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .project-input {
+        width: 100%;
+    }
+
+    .btn-create-project {
+        width: 100%;
+    }
+
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .owner-info {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .owner-label {
+        display: none;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    .user-menu {
+        position: absolute;
+        top: 1rem;
+        right: 6%;
+    }
+
+    .user-menu button > div {
+        display: none;
+    }
+
+    .user-menu button {
+        padding: 0;
+        width: auto;
+    }
+}
