@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Board;
+use App\Models\TaskList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,21 +21,43 @@ class BoardController extends Controller
             abort(403);
         }
 
-        $board->load('taskLists.cards');        
+        $board->load(['taskLists' => function($query) {
+            $query->orderBy('position', 'asc')->with(['cards' => function($q) {
+                $q->orderBy('position', 'asc');
+            }]);
+        }]);        
+        
         return view('boards.show', compact('board'));
     }
 
     public function store(Request $request)
     {
+        $request->validate(['title' => 'required|string|max:255']);
+        Board::create(['title' => $request->title, 'user_id' => Auth::id()]);
+        return redirect()->route('dashboard')->with('success', 'Project created!');
+    }
+
+    public function storeList(Request $request)
+    {
         $request->validate([
             'title' => 'required|string|max:255',
+            'board_id' => 'required|exists:boards,id'
         ]);
 
-        Board::create([
+        TaskList::create([
             'title' => $request->title,
-            'user_id' => Auth::id(),
+            'board_id' => $request->board_id,
+            'position' => TaskList::where('board_id', $request->board_id)->count()
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Project created!');
+        return back();
+    }
+
+    public function reorderLists(Request $request)
+    {
+        foreach ($request->order as $item) {
+            TaskList::where('id', $item['id'])->update(['position' => $item['position']]);
+        }
+        return response()->json(['success' => true]);
     }
 }

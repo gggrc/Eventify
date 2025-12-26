@@ -7,13 +7,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TaskList extends Model
 {
-    /**
-     * Atribut yang dapat diisi selama mass assignment.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'title',
+        'board_id', 
+        'position',
     ];
 
     public function cards(): HasMany

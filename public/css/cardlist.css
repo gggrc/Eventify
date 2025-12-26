@@ -1,40 +1,113 @@
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     font-family: 'Poppins', sans-serif;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    margin: 0;
     background: #f4f6fb;
+    color: #1f2937;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .app-wrapper {
-    padding: 24px;
+    padding: 20px 30px;
+    width: 100%;
+    min-height: calc(100vh - 70px); 
 }
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    background: #ffffff;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
 }
 
 .topbar-left {
     display: flex;
-    gap: 16px;
     align-items: center;
+    gap: 20px;
 }
 
 .topbar-left h2 {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
+.topbar-left h2 i {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Custom Input Search */
 .topbar-left input {
-    padding: 8px 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background: #f3f4f6;
+    width: 250px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.topbar-left input:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #4f46e5;
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 8px 16px;
     border-radius: 8px;
-    border: none;
-    background: #eef1f7;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    background-color: #4338ca;
+    transform: translateY(-1px);
+}
+
+.btn-back i {
+    font-size: 12px;
 }
 
 .topbar-right {
@@ -43,132 +116,215 @@ body {
     gap: 12px;
 }
 
-.btn-icon {
-    background: white;
+/* Custom Buttons */
+.btn-icon, .btn-filter {
+    background: #f3f4f6;
     border: none;
-    border-radius: 8px;
-    padding: 8px;
-    cursor: pointer;
-}
-
-.avatars {
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4b5563;
+    transition: all 0.2s ease;
 }
 
-.avatars img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid white;
-    margin-left: -8px;
+.btn-icon:hover, .btn-filter:hover {
+    background: #e5e7eb;
+    color: #111827;
+    transform: translateY(-2px);
 }
 
-.avatar-more {
-    background: #6366f1;
-    color: white;
-    font-size: 12px;
-    padding: 4px 6px;
-    border-radius: 999px;
-    margin-left: 4px;
-}
-
-.btn-filter {
-    border: none;
-    background: white;
-    padding: 8px;
-    border-radius: 8px;
-}
-
+/* Custom Select Task Filter */
 .task-filter {
-    padding: 8px;
-    border-radius: 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #f3f4f6;
     border: none;
+    padding: 10px 35px 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
 }
 
+.task-filter:hover {
+    background-color: #e5e7eb;
+}
+
+/* Kanban Board Layout */
 .kanban-board {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     overflow-x: auto;
+    padding-bottom: 20px;
+    align-items: flex-start;
 }
 
+/* Kanban Column */
 .kanban-column {
-    width: 300px;
-    padding: 12px;
-    border-radius: 16px;
+    width: 320px;
+    padding: 20px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
 }
 
 .column-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 .column-header h3 {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
 }
 
 .column-header span {
-    background: rgba(255,255,255,0.4);
-    padding: 2px 8px;
-    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 2px 12px;
+    border-radius: 20px;
     font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
 }
 
-.purple { background: #ede9fe; }
-.blue   { background: #e0f2fe; }
-.orange { background: #fff7ed; }
-.red    { background: #fee2e2; }
+.column-header i {
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s;
+}
 
+.column-header i:hover {
+    color: #111827;
+}
+
+/* Column Themes */
+.purple { background: #f5f3ff; }
+.blue   { background: #eff6ff; }
+.orange { background: #fffaf5; }
+.red    { background: #fff5f5; }
+
+/* Card Style */
 .card {
-    background: white;
-    padding: 14px;
-    border-radius: 12px;
-    margin-bottom: 12px;
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: grab;
+}
+
+.card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #e5e7eb;
+}
+
+.card:active {
+    cursor: grabbing;
 }
 
 .card .title {
     font-size: 14px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    color: #111827;
+    display: block;
 }
 
-.meta {
+.card .meta {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.card .meta span {
     font-size: 12px;
-    color: #6b7280;
+    color: #9ca3af;
+    font-weight: 500;
 }
 
+.card-ghost {
+    opacity: 0.4;
+    background: #cbd5e1 !important;
+    border: 2px dashed #64748b !important;
+}
+
+.sortable-cards {
+    min-height: 50px; /* Area agar kartu bisa di-drop meskipun list kosong */
+}
+/* Custom Badges */
 .badge {
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.badge.high {
-    background: #fee2e2;
-    color: #b91c1c;
-}
+.badge.medium { background: #fef3c7; color: #b45309; }
+.badge.high { background: #fee2e2; color: #b91c1c; }
+.badge.low { background: #dcfce7; color: #15803d; }
 
-.badge.medium {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge.low {
-    background: #dcfce7;
-    color: #166534;
-}
-
+/* Add Task Button */
 .add-task {
     width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.6);
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
     cursor: pointer;
     font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    font-size: 13px;
+}
+
+.add-task:hover {
+    background: #ffffff;
+    border-color: #6366f1;
+    color: #6366f1;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
+}
+
+/* Placeholder List */
+.add-list-section {
+    width: 320px;
+    min-height: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px dashed #cbd5e1;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.add-list-section:hover {
+    background: #ffffff;
+    border-color: #94a3b8;
+    transform: scale(1.02);
+}
+
+.add-list-section span {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
 }
