@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
+use App\Models\Task; 
 use Illuminate\Http\Request;
 
 class CardController extends Controller
@@ -12,7 +13,7 @@ class CardController extends Controller
         return response()->json($card->load('tasks'));
     }
 
-   public function update(Request $request, Card $card)
+    public function update(Request $request, Card $card)
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -31,7 +32,7 @@ class CardController extends Controller
                 if (!empty($taskData['title'])) {
                     $card->tasks()->create([
                         'title' => $taskData['title'],
-                        'is_completed' => $taskData['is_completed'] ?? false
+                        'is_completed' => filter_var($taskData['is_completed'], FILTER_VALIDATE_BOOLEAN)
                     ]);
                 }
             }
