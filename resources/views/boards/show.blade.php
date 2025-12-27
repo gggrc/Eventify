@@ -106,7 +106,7 @@
                     <div class="modal-label-group">
                         <span class="modal-label-text">Task Details</span>
                     </div>
-                    <input type="text" id="modalTitle" class="modal-title-input" placeholder="Judul Task">
+                    <input type="text" id="modalTitle" class="modal-title-input" placeholder="Task Title">
                 </div>
                 <button onclick="closeModal()" class="modal-close-icon">
                     <i class="fa-solid fa-xmark"></i>
@@ -116,16 +116,12 @@
             <div class="modal-card-body">
                 <div class="grid grid-cols-1 gap-6">
                     <div>
-                        <label class="modal-section-title">
-                            Deskripsi
-                        </label>
-                        <textarea id="modalDescription" class="modal-desc-area" placeholder="Tambahkan deskripsi detail..."></textarea>
+                        <label class="modal-section-title">Description</label>
+                        <textarea id="modalDescription" class="modal-desc-area" placeholder="Add detailed description..."></textarea>
                     </div>
                     
                     <div>
-                        <label class="modal-section-title">
-                            Priority
-                        </label>
+                        <label class="modal-section-title">Priority</label>
                         <select id="modalPriority" class="modal-priority-select">
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
@@ -134,13 +130,13 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="mt-6">
                     <label class="modal-section-title">
-                        <i class="fa-solid fa-list-check"></i> Checklist
+                        Checklist
                     </label>
                     <div id="checklistItems" class="checklist-items-container"></div>
                     <button onclick="addChecklistItem()" class="btn-add-checklist-item">
-                        Add Item
+                        + Add Item
                     </button>
                 </div>
             </div>
@@ -150,7 +146,7 @@
                     <i class="fa-solid fa-trash"></i> Delete Card
                 </button>
                 <div>
-                    <button onclick="closeModal()" class="btn-modal-cancel">Batal</button>
+                    <button onclick="closeModal()" class="btn-modal-cancel">Cancel</button>
                     <button onclick="saveCardChanges()" class="btn-modal-save">SAVE CHANGES</button>
                 </div>
             </div>
@@ -162,6 +158,7 @@
         let activeCardId = null;
 
         function initDragAndDrop() {
+            // --- CARD DRAG AND DROP ---
             document.querySelectorAll('.card').forEach(card => {
                 card.addEventListener('dragstart', (e) => {
                     e.stopPropagation();
@@ -191,7 +188,8 @@
 
                     const cardId = draggingCard.dataset.cardId;
                     const newListId = listArea.dataset.listId;
-                    const position = Array.from(listArea.querySelectorAll('.card')).indexOf(draggingCard);
+                    const cardsInList = Array.from(listArea.querySelectorAll('.card'));
+                    const position = cardsInList.indexOf(draggingCard);
 
                     try {
                         await fetch(`/cards/${cardId}/move`, {
@@ -203,13 +201,21 @@
                             },
                             body: JSON.stringify({ list_id: newListId, position: position })
                         });
-                    } catch (error) { console.error('Move error:', error); }
+                    } catch (error) { 
+                        console.error('Move error:', error); 
+                    }
                 });
             });
 
+            // --- LIST (COLUMN) DRAG AND DROP ---
             const kanbanContainer = document.getElementById('kanban-container');
             document.querySelectorAll('.column-draggable').forEach(column => {
-                column.addEventListener('dragstart', () => column.classList.add('dragging-list'));
+                column.addEventListener('dragstart', (e) => {
+                    // Prevent dragging cards from triggering list drag
+                    if (e.target.classList.contains('card')) return;
+                    column.classList.add('dragging-list');
+                });
+
                 column.addEventListener('dragend', async () => {
                     column.classList.remove('dragging-list');
                     
@@ -218,11 +224,19 @@
                         listOrder.push({ id: col.dataset.listId, position: index });
                     });
 
-                    await fetch("{{ route('lists.reorder') }}", {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                        body: JSON.stringify({ order: listOrder })
-                    });
+                    try {
+                        await fetch("{{ route('lists.reorder') }}", {
+                            method: 'PATCH',
+                            headers: { 
+                                'Content-Type': 'application/json', 
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ order: listOrder })
+                        });
+                    } catch (error) {
+                        console.error('Reorder error:', error);
+                    }
                 });
             });
 
@@ -242,6 +256,19 @@
             });
         }
 
+        // Helper for Card position
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else { return closest; }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Helper for Column position
         function getDragAfterElementList(container, x) {
             const draggableElements = [...container.querySelectorAll('.column-draggable:not(.dragging-list)')];
             return draggableElements.reduce((closest, child) => {
@@ -261,7 +288,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes',
+                confirmButtonText: 'Yes, delete it!',
                 cancelButtonText: 'Cancel'
             });
 
@@ -271,46 +298,17 @@
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
+                            'Accept': 'application/json'
                         }
                     });
 
                     if (response.ok) {
                         Swal.fire('Deleted!', 'The list has been deleted.', 'success')
                             .then(() => location.reload());
-                    } else {
-                        throw new Error('Failed to delete the list');
                     }
                 } catch (error) {
-                    Swal.fire('Error!', 'An error occurred while deleting the data.', 'error');
+                    Swal.fire('Error!', 'An error occurred while deleting.', 'error');
                 }
-            }
-        }
-
-        async function deleteCard() {
-            if (!activeCardId) return;
-
-            const result = await Swal.fire({
-                title: 'Delete Card?',
-                text: "Deleted data cannot be restored.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Delete'
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    const res = await fetch(`/cards/${activeCardId}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
-                    });
-                    if (res.ok) { location.reload(); }
-                } catch (error) { console.error('Delete error:', error); }
             }
         }
 
@@ -320,9 +318,8 @@
                 const res = await fetch(`/cards/${cardId}`, {
                     headers: { 'Accept': 'application/json' }
                 });
-                if (!res.ok) throw new Error(`Server error ${res.status}`);
-
                 const card = await res.json();
+                
                 document.getElementById('modalTitle').value = card.title;
                 document.getElementById('modalDescription').value = card.description || '';
                 document.getElementById('modalPriority').value = card.priority || 'Low';
@@ -334,7 +331,6 @@
                 document.getElementById('cardModal').classList.add('active');
             } catch (e) { 
                 console.error('Error fetching card:', e);
-                alert("Gagal memuat detail card.");
             }
         }
 
@@ -344,7 +340,7 @@
             div.className = 'checklist-item-row group';
             div.innerHTML = `
                 <input type="checkbox" class="task-check" ${checked ? 'checked' : ''}>
-                <input type="text" class="task-title-input-field" value="${title}" placeholder="Nama task...">
+                <input type="text" class="task-title-input-field" value="${title}" placeholder="Task name...">
                 <button onclick="this.parentElement.remove()" class="btn-delete-checklist-item">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -381,10 +377,40 @@
                 });
 
                 if(res.ok) { location.reload(); }
-            } catch (error) { console.error('Save error:', error); }
+            } catch (error) { 
+                console.error('Save error:', error); 
+            }
         }
 
-        function closeModal() { document.getElementById('cardModal').classList.remove('active'); activeCardId = null; }
+        async function deleteCard() {
+            if (!activeCardId) return;
+            const result = await Swal.fire({
+                title: 'Delete Card?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Delete'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/cards/${activeCardId}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (res.ok) { location.reload(); }
+                } catch (error) { console.error('Delete error:', error); }
+            }
+        }
+
+        function closeModal() { 
+            document.getElementById('cardModal').classList.remove('active'); 
+            activeCardId = null; 
+        }
         
         function toggleForm(id) {
             const form = document.getElementById(id);
