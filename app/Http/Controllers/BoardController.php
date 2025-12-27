@@ -60,4 +60,19 @@ class BoardController extends Controller
         }
         return response()->json(['success' => true]);
     }
+
+    public function destroyList(TaskList $list)
+    {
+        if (!$list->board || $list->board->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $list->delete();
+        
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'List deleted!');
+    }
 }

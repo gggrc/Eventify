@@ -11,7 +11,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -53,7 +54,11 @@
                 <section class="kanban-column {{ $colors[$index % 4] }} column-draggable" draggable="true" data-list-id="{{ $list->id }}">
                     <div class="column-header">
                         <h3 class="column-title">{{ $list->title }} <span>{{ $list->cards->count() }}</span></h3>
-                        <i class="fa-solid fa-plus cursor-pointer" onclick="toggleForm('task-form-{{ $list->id }}')"></i>
+                        <div class="flex gap-2 items-center">
+                            <button type="button" onclick="confirmDeleteList({{ $list->id }})" class="text-gray-400 hover:text-red-500">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="cards-area card-list" id="list-{{ $list->id }}" data-list-id="{{ $list->id }}">
@@ -140,11 +145,14 @@
                 </div>
             </div>
 
-            <div class="modal-card-footer">
-                <button onclick="closeModal()" class="btn-modal-cancel">Batal</button>
-                <button onclick="saveCardChanges()" class="btn-modal-save">
-                    <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
+            <div class="modal-card-footer justify-between flex">
+                <button onclick="deleteCard()" class="text-red-500 hover:underline text-sm">
+                    <i class="fa-solid fa-trash"></i> Delete Card
                 </button>
+                <div>
+                    <button onclick="closeModal()" class="btn-modal-cancel">Batal</button>
+                    <button onclick="saveCardChanges()" class="btn-modal-save">SAVE CHANGES</button>
+                </div>
             </div>
         </div>
     </div>
@@ -165,7 +173,6 @@
             document.querySelectorAll('.cards-area').forEach(listArea => {
                 listArea.addEventListener('dragover', e => {
                     e.preventDefault();
-                    listArea.classList.add('drag-over');
                     const draggingCard = document.querySelector('.card.dragging');
                     if (!draggingCard) return;
 
@@ -177,11 +184,8 @@
                     }
                 });
 
-                listArea.addEventListener('dragleave', () => listArea.classList.remove('drag-over'));
-
                 listArea.addEventListener('drop', async (e) => {
                     e.preventDefault();
-                    listArea.classList.remove('drag-over');
                     const draggingCard = document.querySelector('.card.dragging');
                     if (!draggingCard) return;
 
@@ -190,7 +194,7 @@
                     const position = Array.from(listArea.querySelectorAll('.card')).indexOf(draggingCard);
 
                     try {
-                        const response = await fetch(`/cards/${cardId}/move`, {
+                        await fetch(`/cards/${cardId}/move`, {
                             method: 'PATCH',
                             headers: { 
                                 'Content-Type': 'application/json', 
@@ -199,21 +203,115 @@
                             },
                             body: JSON.stringify({ list_id: newListId, position: position })
                         });
-                        if (!response.ok) throw new Error('Gagal memindahkan card');
                     } catch (error) { console.error('Move error:', error); }
                 });
             });
+
+            const kanbanContainer = document.getElementById('kanban-container');
+            document.querySelectorAll('.column-draggable').forEach(column => {
+                column.addEventListener('dragstart', () => column.classList.add('dragging-list'));
+                column.addEventListener('dragend', async () => {
+                    column.classList.remove('dragging-list');
+                    
+                    const listOrder = [];
+                    document.querySelectorAll('.column-draggable').forEach((col, index) => {
+                        listOrder.push({ id: col.dataset.listId, position: index });
+                    });
+
+                    await fetch("{{ route('lists.reorder') }}", {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ order: listOrder })
+                    });
+                });
+            });
+
+            kanbanContainer.addEventListener('dragover', e => {
+                e.preventDefault();
+                const draggingList = document.querySelector('.dragging-list');
+                if (!draggingList) return;
+
+                const afterElement = getDragAfterElementList(kanbanContainer, e.clientX);
+                const addSection = document.querySelector('.add-list-section');
+                
+                if (afterElement == null) {
+                    kanbanContainer.insertBefore(draggingList, addSection);
+                } else {
+                    kanbanContainer.insertBefore(draggingList, afterElement);
+                }
+            });
         }
 
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+        function getDragAfterElementList(container, x) {
+            const draggableElements = [...container.querySelectorAll('.column-draggable:not(.dragging-list)')];
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
+                const offset = x - box.left - box.width / 2;
                 if (offset < 0 && offset > closest.offset) {
                     return { offset: offset, element: child };
                 } else { return closest; }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        async function confirmDeleteList(listId) {
+            const result = await Swal.fire({
+                title: 'Delete List?',
+                text: "All cards in this list will also be deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/lists/${listId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        Swal.fire('Deleted!', 'The list has been deleted.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        throw new Error('Failed to delete the list');
+                    }
+                } catch (error) {
+                    Swal.fire('Error!', 'An error occurred while deleting the data.', 'error');
+                }
+            }
+        }
+
+        async function deleteCard() {
+            if (!activeCardId) return;
+
+            const result = await Swal.fire({
+                title: 'Delete Card?',
+                text: "Deleted data cannot be restored.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Delete'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/cards/${activeCardId}`, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (res.ok) { location.reload(); }
+                } catch (error) { console.error('Delete error:', error); }
+            }
         }
 
         async function openCardModal(cardId) {

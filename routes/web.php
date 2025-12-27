@@ -17,6 +17,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/lists', [BoardController::class, 'storeList'])->name('lists.store');
     Route::patch('/lists/reorder', [BoardController::class, 'reorderLists'])->name('lists.reorder');
 
+    Route::delete('/cards/{card}', [CardController::class, 'destroy'])->name('cards.destroy');
+    Route::delete('/lists/{list}', [BoardController::class, 'destroyList'])->name('lists.destroy');
+
     Route::post('/cards', [CardController::class, 'store'])->name('cards.store');
     Route::get('/cards/{card}', [CardController::class, 'show'])->name('cards.show');
     Route::put('/cards/{card}', [CardController::class, 'update'])->name('cards.update');

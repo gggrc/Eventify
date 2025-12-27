@@ -65,4 +65,10 @@ class CardController extends Controller
 
         return back();
     }
+
+    public function destroy(Card $card)
+    {
+        $card->delete();
+        return response()->json(['success' => true]);
+    }
 }
