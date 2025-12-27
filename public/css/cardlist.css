@@ -37,7 +37,7 @@ body {
 }
 
 .app-wrapper {
-    padding: 20px 30px; /* Sesuaikan padding atas */
+    padding: 20px 30px;
     width: 100%;
     min-height: calc(100vh - 70px); 
 }
@@ -249,19 +249,12 @@ body {
     display: block;
 }
 
-.card .meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+/* Priority & Badge Styles (Migrated) */
+.priority-low { background-color: #3b82f6 !important; color: white !important; }
+.priority-medium { background-color: #f59e0b !important; color: white !important; }
+.priority-urgent { background-color: #ef4444 !important; color: white !important; }
+.badge-priority { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-.card .meta span {
-    font-size: 12px;
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-/* Custom Badges */
 .badge {
     padding: 4px 10px;
     border-radius: 8px;
@@ -275,7 +268,7 @@ body {
 .badge.high { background: #fee2e2; color: #b91c1c; }
 .badge.low { background: #dcfce7; color: #15803d; }
 
-/* Add Task Button */
+/* Add Task & List Section */
 .add-task {
     width: 100%;
     padding: 12px;
@@ -296,7 +289,6 @@ body {
     box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
 }
 
-/* Placeholder List */
 .add-list-section {
     width: 320px;
     min-height: 100px;
@@ -323,6 +315,12 @@ body {
     font-size: 14px;
 }
 
+/* Drag and Drop Visuals (Migrated) */
+.cards-area { min-height: 10px; padding-bottom: 0px; transition: background-color 0.2s; }
+.cards-area.drag-over { background-color: rgba(0, 0, 0, 0.05); border-radius: 8px; }
+.dragging { opacity: 0.5; cursor: grabbing; }
+
+/* Modal Styles (Cleaned & Migrated) */
 .modal-backdrop { 
     display: none; 
     position: fixed; 
@@ -332,152 +330,212 @@ body {
     align-items: center; 
     justify-content: center; 
 }
-.modal-backdrop.active { 
-    display: flex; 
-}
 
-.modal-content {
-    background: #f4f5f7;
-    width: 100%;
-    max-width: 700px;
+.modal-backdrop.active { display: flex; }
+
+.modal-card-container {
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 672px; /* max-w-2xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    margin: 0 16px;
 }
 
-.modal-header {
-    padding: 20px 24px;
+@media (min-width: 768px) {
+    .modal-card-container { margin: 0 auto; }
+}
+
+.modal-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    padding: 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.title-container {
+.modal-label-group {
     display: flex;
     align-items: center;
-    gap: 12px;
-    width: 90%;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: #6b7280;
 }
 
-.title-container i {
-    font-size: 1.2rem;
-    color: #42526e;
+.modal-label-text {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.modal-editable-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #172b4d;
-    border: 2px solid transparent;
-    background: transparent;
-    width: 100%;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-.modal-editable-title:focus {
-    background: white;
-    border-color: #38a169;
-    outline: none;
-}
-
-.close-modal-btn {
-    background: transparent;
+.modal-title-input {
+    font-size: 24px;
+    font-weight: 700;
     border: none;
-    font-size: 2rem;
-    color: #6b778c;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.modal-body {
-    padding: 0 24px 24px 24px;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.modal-section {
-    margin-bottom: 24px;
-}
-
-.section-label {
-    display: block;
-    font-weight: 600;
-    color: #172b4d;
-    margin-bottom: 12px;
-}
-
-.section-label i {
-    margin-right: 8px;
-    color: #42526e;
-}
-
-.modal-textarea {
     width: 100%;
-    min-height: 100px;
-    border: 1px solid #dfe1e6;
     border-radius: 8px;
-    padding: 12px;
-    background: white;
-    resize: vertical;
-    font-size: 0.95rem;
+    padding: 4px;
+    margin-left: -4px;
+    transition: all 0.2s;
 }
 
-.modal-textarea:focus {
+.modal-title-input:focus {
+    box-shadow: 0 0 0 2px #3b82f6;
     outline: none;
-    border-color: #4c51bf;
 }
 
-/* Task Checklist */
-.task-checkbox-item {
+.modal-close-icon {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close-icon:hover { color: #ef4444; }
+
+.modal-card-body { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+.modal-section-title {
     display: flex;
     align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.modal-desc-area {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 16px;
+    min-height: 120px;
+    transition: all 0.2s;
+}
+
+.modal-desc-area:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+
+.modal-priority-select {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 10px;
+}
+
+/* Checklist Items */
+.checklist-items-container {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    margin-bottom: 10px;
-    background: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #dfe1e6;
+    margin-bottom: 16px;
+    max-height: 192px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
-.task-title-input {
-    border: none;
-    flex-grow: 1;
-    font-size: 0.9rem;
-}
+.checklist-item-row { display: flex; align-items: center; gap: 12px; }
 
-.task-title-input:focus {
-    outline: none;
-}
-
-.btn-add-detail {
-    background: #ebecf0;
-    border: none;
-    padding: 6px 12px;
+.task-check {
+    width: 20px;
+    height: 20px;
     border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    border: 1px solid #d1d5db;
     cursor: pointer;
-    margin-top: 8px;
 }
 
-.btn-add-detail:hover {
-    background: #dfe1e6;
+.task-title-input-field {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 6px 8px;
+    transition: all 0.2s;
 }
 
-.modal-footer {
-    padding: 16px 24px;
-    background: #f4f5f7;
-    text-align: right;
-    border-top: 1px solid #dfe1e6;
+.task-title-input-field:hover { border-color: #e5e7eb; }
+.task-title-input-field:focus { border-color: #3b82f6; outline: none; }
+
+.btn-delete-checklist-item {
+    opacity: 0;
+    color: #f87171;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: all 0.2s;
 }
 
-.btn-secondary {
-    background: #ebecf0;
-    color: #172b4d;
+.checklist-item-row:hover .btn-delete-checklist-item { opacity: 1; }
+.btn-delete-checklist-item:hover { color: #dc2626; }
+
+.btn-add-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #eff6ff;
+    color: #2563eb;
     padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #dbeafe;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-add-checklist-item:hover { background: #dbeafe; }
+
+.modal-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-modal-cancel {
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.btn-modal-cancel:hover { color: #374151; }
+
+.btn-modal-save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 32px;
+    background: #2563eb;
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-modal-save:hover { background: #1d4ed8; }
+.btn-modal-save:active { transform: scale(0.95); }
+
+/* Avatar Utility */
+.avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
 }

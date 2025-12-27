@@ -8,28 +8,11 @@
     
     <link rel="stylesheet" href="{{ asset('css/cardlist.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        /* Priority Colors */
-        .priority-low { background-color: #3b82f6 !important; color: white !important; }
-        .priority-medium { background-color: #f59e0b !important; color: white !important; }
-        .priority-urgent { background-color: #ef4444 !important; color: white !important; }
-        .badge-priority { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-
-        /* Drag and Drop Visuals - Menjamin area kosong tetap bisa menerima drop */
-        .cards-area { min-height: 100px; padding-bottom: 20px; transition: background-color 0.2s; }
-        .cards-area.drag-over { background-color: rgba(0, 0, 0, 0.05); border-radius: 8px; }
-        .dragging { opacity: 0.5; cursor: grabbing; }
-        .dragging-column { opacity: 0.4; border: 2px dashed #ccc; }
-
-        /* Modal Backdrop */
-        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
-        .modal-backdrop.active { display: flex; }
-    </style>
 </head>
 <body>
     <div class="app-wrapper">
@@ -40,7 +23,7 @@
                     <x-slot name="trigger">
                         <button class="flex items-center gap-2 border-none bg-transparent cursor-pointer">
                             <div class="user-name">{{ Auth::user()->name }}</div>
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="avatar-img">
                         </button>
                     </x-slot>
                     <x-slot name="content">
@@ -112,39 +95,33 @@
     </div>
 
     <div id="cardModal" class="modal-backdrop" onclick="closeModal()">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden mx-4 md:mx-auto" onclick="event.stopPropagation()">
-            
-            <div class="flex justify-between items-start p-6 bg-gray-50 border-b">
+        <div class="modal-card-container" onclick="event.stopPropagation()">
+            <div class="modal-card-header">
                 <div class="flex-grow">
-                    <div class="flex items-center gap-2 mb-1 text-gray-500">
-                        <i class="fa-solid fa-window-maximize"></i>
-                        <span class="text-xs font-bold uppercase tracking-wider">Task Details</span>
+                    <div class="modal-label-group">
+                        <span class="modal-label-text">Task Details</span>
                     </div>
-                    <input type="text" id="modalTitle" 
-                        class="text-2xl font-bold border-none w-full focus:ring-2 focus:ring-blue-500 rounded-lg p-1 -ml-1 transition-all" 
-                        placeholder="Judul Task">
+                    <input type="text" id="modalTitle" class="modal-title-input" placeholder="Judul Task">
                 </div>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition-colors text-2xl ml-4">
+                <button onclick="closeModal()" class="modal-close-icon">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-6 space-y-6">
+            <div class="modal-card-body">
                 <div class="grid grid-cols-1 gap-6">
                     <div>
-                        <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                            <i class="fa-solid fa-align-left"></i> Deskripsi
+                        <label class="modal-section-title">
+                            Deskripsi
                         </label>
-                        <textarea id="modalDescription" 
-                            class="w-full border-gray-200 rounded-xl text-sm p-4 focus:ring-2 focus:ring-blue-500 min-h-[120px]" 
-                            placeholder="Tambahkan deskripsi detail..."></textarea>
+                        <textarea id="modalDescription" class="modal-desc-area" placeholder="Tambahkan deskripsi detail..."></textarea>
                     </div>
                     
                     <div>
-                        <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                            <i class="fa-solid fa-flag"></i> Priority
+                        <label class="modal-section-title">
+                            Priority
                         </label>
-                        <select id="modalPriority" class="w-full border-gray-200 rounded-lg text-sm p-2.5 focus:ring-2 focus:ring-blue-500">
+                        <select id="modalPriority" class="modal-priority-select">
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
                             <option value="Urgent">Urgent</option>
@@ -153,24 +130,19 @@
                 </div>
 
                 <div>
-                    <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
+                    <label class="modal-section-title">
                         <i class="fa-solid fa-list-check"></i> Checklist
                     </label>
-                    <div id="checklistItems" class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2">
-                        </div>
-                    <button onclick="addChecklistItem()" 
-                        class="flex items-center gap-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors border border-blue-100">
-                        <i class="fa-solid fa-plus"></i> Tambah Item
+                    <div id="checklistItems" class="checklist-items-container"></div>
+                    <button onclick="addChecklistItem()" class="btn-add-checklist-item">
+                        Add Item
                     </button>
                 </div>
             </div>
 
-            <div class="flex justify-end items-center gap-3 p-6 bg-gray-50 border-t">
-                <button onclick="closeModal()" class="px-5 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700">
-                    Batal
-                </button>
-                <button onclick="saveCardChanges()" 
-                    class="flex items-center gap-2 px-8 py-2.5 text-sm bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+            <div class="modal-card-footer">
+                <button onclick="closeModal()" class="btn-modal-cancel">Batal</button>
+                <button onclick="saveCardChanges()" class="btn-modal-save">
                     <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
                 </button>
             </div>
@@ -181,7 +153,6 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let activeCardId = null;
 
-        // --- DRAG AND DROP LOGIC ---
         function initDragAndDrop() {
             document.querySelectorAll('.card').forEach(card => {
                 card.addEventListener('dragstart', (e) => {
@@ -245,20 +216,15 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // --- POPUP MODAL LOGIC ---
         async function openCardModal(cardId) {
             activeCardId = cardId;
             try {
                 const res = await fetch(`/cards/${cardId}`, {
                     headers: { 'Accept': 'application/json' }
                 });
-                
-                if (!res.ok) {
-                    throw new Error(`Server returned error ${res.status}`);
-                }
+                if (!res.ok) throw new Error(`Server error ${res.status}`);
 
                 const card = await res.json();
-
                 document.getElementById('modalTitle').value = card.title;
                 document.getElementById('modalDescription').value = card.description || '';
                 document.getElementById('modalPriority').value = card.priority || 'Low';
@@ -270,19 +236,18 @@
                 document.getElementById('cardModal').classList.add('active');
             } catch (e) { 
                 console.error('Error fetching card:', e);
-                alert("Gagal memuat detail card. Pastikan route GET /cards/{id} sudah benar di backend.");
+                alert("Gagal memuat detail card.");
             }
         }
 
         function addChecklistItem(title = '', checked = false) {
             const container = document.getElementById('checklistItems');
             const div = document.createElement('div');
-            div.className = 'flex items-center gap-3 group';
+            div.className = 'checklist-item-row group';
             div.innerHTML = `
-                <input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" ${checked ? 'checked' : ''}>
-                <input type="text" class="task-title w-full border-transparent hover:border-gray-200 focus:border-blue-500 rounded-lg text-sm py-1.5 px-2 transition-all" 
-                    value="${title}" placeholder="Nama task...">
-                <button onclick="this.parentElement.remove()" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all">
+                <input type="checkbox" class="task-check" ${checked ? 'checked' : ''}>
+                <input type="text" class="task-title-input-field" value="${title}" placeholder="Nama task...">
+                <button onclick="this.parentElement.remove()" class="btn-delete-checklist-item">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
@@ -296,8 +261,8 @@
             const priority = document.getElementById('modalPriority').value;
             
             const tasks = [];
-            document.querySelectorAll('#checklistItems .flex').forEach(item => {
-                const tTitle = item.querySelector('.task-title').value;
+            document.querySelectorAll('#checklistItems .checklist-item-row').forEach(item => {
+                const tTitle = item.querySelector('.task-title-input-field').value;
                 if(tTitle.trim() !== "") {
                     tasks.push({
                         title: tTitle,
@@ -317,12 +282,7 @@
                     body: JSON.stringify({ title, description, priority, tasks })
                 });
 
-                if(res.ok) { 
-                    location.reload(); 
-                } else {
-                    const errorData = await res.json();
-                    console.error('Save failed:', errorData);
-                }
+                if(res.ok) { location.reload(); }
             } catch (error) { console.error('Save error:', error); }
         }
 
