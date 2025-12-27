@@ -112,40 +112,66 @@
     </div>
 
     <div id="cardModal" class="modal-backdrop" onclick="closeModal()">
-        <div class="bg-white p-6 rounded-lg w-full max-w-2xl shadow-xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <input type="text" id="modalTitle" class="text-xl font-bold border-none w-full focus:ring-0" placeholder="Judul Card">
-                <button onclick="closeModal()" class="text-gray-400 hover:text-black text-2xl">&times;</button>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 mb-4">
-                <div class="col-span-2">
-                    <label class="block text-sm font-semibold mb-1"><i class="fa-solid fa-align-left mr-2"></i>Deskripsi</label>
-                    <textarea id="modalDescription" class="w-full border-gray-300 rounded-md text-sm p-2" rows="3" placeholder="Tambahkan deskripsi..."></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Priority</label>
-                    <select id="modalPriority" class="w-full border-gray-300 rounded-md text-sm p-2">
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-semibold mb-2"><i class="fa-solid fa-list-check mr-2"></i>Checklist</label>
-                <div id="checklistItems" class="space-y-2 mb-2">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden mx-4 md:mx-auto" onclick="event.stopPropagation()">
+            
+            <div class="flex justify-between items-start p-6 bg-gray-50 border-b">
+                <div class="flex-grow">
+                    <div class="flex items-center gap-2 mb-1 text-gray-500">
+                        <i class="fa-solid fa-window-maximize"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider">Task Details</span>
                     </div>
-                <button onclick="addChecklistItem()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded border">
-                    + Tambah Item Checklist
+                    <input type="text" id="modalTitle" 
+                        class="text-2xl font-bold border-none w-full focus:ring-2 focus:ring-blue-500 rounded-lg p-1 -ml-1 transition-all" 
+                        placeholder="Judul Task">
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition-colors text-2xl ml-4">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="flex justify-end gap-2 border-t pt-4">
-                <button onclick="closeModal()" class="px-4 py-2 text-sm text-gray-600">Batal</button>
-                <button onclick="saveCardChanges()" class="px-6 py-2 text-sm bg-blue-600 text-white rounded font-bold hover:bg-blue-700">
-                    SAVE
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
+                            <i class="fa-solid fa-align-left"></i> Deskripsi
+                        </label>
+                        <textarea id="modalDescription" 
+                            class="w-full border-gray-200 rounded-xl text-sm p-4 focus:ring-2 focus:ring-blue-500 min-h-[120px]" 
+                            placeholder="Tambahkan deskripsi detail..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
+                            <i class="fa-solid fa-flag"></i> Priority
+                        </label>
+                        <select id="modalPriority" class="w-full border-gray-200 rounded-lg text-sm p-2.5 focus:ring-2 focus:ring-blue-500">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
+                        <i class="fa-solid fa-list-check"></i> Checklist
+                    </label>
+                    <div id="checklistItems" class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2">
+                        </div>
+                    <button onclick="addChecklistItem()" 
+                        class="flex items-center gap-2 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors border border-blue-100">
+                        <i class="fa-solid fa-plus"></i> Tambah Item
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-end items-center gap-3 p-6 bg-gray-50 border-t">
+                <button onclick="closeModal()" class="px-5 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700">
+                    Batal
+                </button>
+                <button onclick="saveCardChanges()" 
+                    class="flex items-center gap-2 px-8 py-2.5 text-sm bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                    <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
                 </button>
             </div>
         </div>
@@ -251,11 +277,14 @@
         function addChecklistItem(title = '', checked = false) {
             const container = document.getElementById('checklistItems');
             const div = document.createElement('div');
-            div.className = 'flex items-center gap-2 mb-2';
+            div.className = 'flex items-center gap-3 group';
             div.innerHTML = `
-                <input type="checkbox" class="task-check rounded text-blue-600" ${checked ? 'checked' : ''}>
-                <input type="text" class="task-title border-gray-300 rounded text-sm flex-grow p-1" value="${title}" placeholder="Nama task...">
-                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 text-lg">&times;</button>
+                <input type="checkbox" class="task-check w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" ${checked ? 'checked' : ''}>
+                <input type="text" class="task-title w-full border-transparent hover:border-gray-200 focus:border-blue-500 rounded-lg text-sm py-1.5 px-2 transition-all" 
+                    value="${title}" placeholder="Nama task...">
+                <button onclick="this.parentElement.remove()" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
             `;
             container.appendChild(div);
         }

@@ -323,20 +323,17 @@ body {
     font-size: 14px;
 }
 
-/* Modal Styling */
-.modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+.modal-backdrop { 
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.6); 
+    z-index: 1000; 
+    align-items: center; 
+    justify-content: center; 
 }
-
-.modal-backdrop.active {
-    display: flex;
+.modal-backdrop.active { 
+    display: flex; 
 }
 
 .modal-content {
