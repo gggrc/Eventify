@@ -75,24 +75,44 @@
                         @endforeach
                     </div>
 
-                    <button class="add-task" onclick="toggleForm('task-form-{{ $list->id }}')">+ Add new task</button>
-                    <div id="task-form-{{ $list->id }}" class="add-task-form">
-                        <form action="{{ route('cards.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="task_list_id" value="{{ $list->id }}">
-                            <input type="text" name="title" class="add-task-input" placeholder="Enter task..." required>
-                        </form>
+                    <div class="add-task-area" id="task-container-{{ $list->id }}">
+                        <button class="add-task-trigger" onclick="openAddTask({{ $list->id }})">
+                            <i class="fa-solid fa-plus"></i> Add a card
+                        </button>
+
+                        <div id="task-form-wrapper-{{ $list->id }}" class="task-form-wrapper" style="display: none;">
+                            <form action="{{ route('cards.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="task_list_id" value="{{ $list->id }}">
+                                <textarea name="title" class="task-input-textarea" placeholder="Enter a title for this card..." required></textarea>
+                                <div class="task-form-footer">
+                                    <button type="submit" class="btn-confirm-add">Add card</button>
+                                    <button type="button" class="btn-close-add" onclick="closeAddTask({{ $list->id }})">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </section>
             @endforeach
 
-            <div class="add-list-section">
-                <span onclick="toggleForm('list-form-main')" class="cursor-pointer"><i class="fa-solid fa-plus"></i> Add another list</span>
-                <div id="list-form-main" class="add-list-form">
+            <div class="add-list-container" id="list-container-main">
+                <button class="add-list-trigger" onclick="showListForm()">
+                    <i class="fa-solid fa-plus"></i> Add another list
+                </button>
+
+                <div id="list-form-main" class="list-input-form" style="display: none;">
                     <form action="{{ route('lists.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="board_id" value="{{ $board->id }}">
-                        <input type="text" name="title" class="add-task-input" placeholder="Enter list name..." required>
+                        <input type="text" name="title" class="list-entry-input" placeholder="Enter list title..." required>
+                        <div class="list-form-actions">
+                            <button type="submit" class="btn-list-submit">Add List</button>
+                            <button type="button" class="btn-list-cancel" onclick="hideListForm()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -370,6 +390,30 @@
                     countBadge.innerText = count;
                 }
             });
+        }
+
+        function openAddTask(listId) {
+            document.querySelector(`#task-container-${listId} .add-task-trigger`).style.display = 'none';
+            const wrapper = document.getElementById(`task-form-wrapper-${listId}`);
+            wrapper.style.display = 'block';
+            wrapper.querySelector('textarea').focus();
+        }
+
+        function closeAddTask(listId) {
+            document.querySelector(`#task-container-${listId} .add-task-trigger`).style.display = 'flex';
+            document.getElementById(`task-form-wrapper-${listId}`).style.display = 'none';
+        }
+
+        function showListForm() {
+            document.querySelector('#list-container-main .add-list-trigger').style.display = 'none';
+            const form = document.getElementById('list-form-main');
+            form.style.display = 'block';
+            form.querySelector('input[name="title"]').focus();
+        }
+
+        function hideListForm() {
+            document.querySelector('#list-container-main .add-list-trigger').style.display = 'flex';
+            document.getElementById('list-form-main').style.display = 'none';
         }
 
         async function saveCardChanges() {
