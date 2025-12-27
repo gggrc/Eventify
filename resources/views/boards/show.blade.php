@@ -142,11 +142,10 @@
             </div>
 
             <div class="modal-card-footer justify-between flex">
-                <button onclick="deleteCard()" class="text-red-500 hover:underline text-sm">
-                    <i class="fa-solid fa-trash"></i> Delete Card
+                <button onclick="deleteCard()" class="btn-modal-delete">
+                    <i class="fa-solid fa-trash"></i> DELETE CARD
                 </button>
                 <div>
-                    <button onclick="closeModal()" class="btn-modal-cancel">Cancel</button>
                     <button onclick="saveCardChanges()" class="btn-modal-save">SAVE CHANGES</button>
                 </div>
             </div>
@@ -188,8 +187,17 @@
 
                     const cardId = draggingCard.dataset.cardId;
                     const newListId = listArea.dataset.listId;
+                    
+                    // Ambil semua kartu di list tersebut untuk mendapatkan urutan baru
                     const cardsInList = Array.from(listArea.querySelectorAll('.card'));
+                    const cardOrder = cardsInList.map((card, index) => {
+                        return { id: card.dataset.cardId, position: index };
+                    });
+
                     const position = cardsInList.indexOf(draggingCard);
+
+                    // Langsung update angka di UI tanpa menunggu respons server (Optimistic UI)
+                    updateColumnCounts();
 
                     try {
                         await fetch(`/cards/${cardId}/move`, {
@@ -199,10 +207,16 @@
                                 'X-CSRF-TOKEN': csrfToken,
                                 'Accept': 'application/json'
                             },
-                            body: JSON.stringify({ list_id: newListId, position: position })
+                            body: JSON.stringify({ 
+                                list_id: newListId, 
+                                position: position,
+                                card_order: cardOrder // Kirim urutan lengkap ke server
+                            })
                         });
                     } catch (error) { 
-                        console.error('Move error:', error); 
+                        console.error('Move error:', error);
+                        // Opsional: refresh jika error untuk sinkronisasi ulang
+                        // location.reload(); 
                     }
                 });
             });
@@ -346,6 +360,16 @@
                 </button>
             `;
             container.appendChild(div);
+        }
+
+        function updateColumnCounts() {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                const count = column.querySelectorAll('.card').length;
+                const countBadge = column.querySelector('.column-title span');
+                if (countBadge) {
+                    countBadge.innerText = count;
+                }
+            });
         }
 
         async function saveCardChanges() {

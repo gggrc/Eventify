@@ -47,6 +47,13 @@ class CardController extends Controller
             'task_list_id' => $request->list_id,
             'position' => $request->position
         ]);
+
+        if ($request->has('card_order')) {
+            foreach ($request->card_order as $item) {
+                Card::where('id', $item['id'])->update(['position' => $item['position']]);
+            }
+        }
+
         return response()->json(['success' => true]);
     }
 
