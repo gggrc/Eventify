@@ -7,6 +7,48 @@ use Illuminate\Http\Request;
 
 class CardController extends Controller
 {
+    public function show(Card $card)
+    {
+        return response()->json($card->load('tasks'));
+    }
+
+   public function update(Request $request, Card $card)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'priority' => 'required|in:Low,Medium,Urgent',
+        ]);
+
+        $card->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'priority' => $request->priority,
+        ]);
+
+        if ($request->has('tasks')) {
+            $card->tasks()->delete();
+            foreach ($request->tasks as $taskData) {
+                if (!empty($taskData['title'])) {
+                    $card->tasks()->create([
+                        'title' => $taskData['title'],
+                        'is_completed' => $taskData['is_completed'] ?? false
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function move(Request $request, Card $card)
+    {
+        $card->update([
+            'task_list_id' => $request->list_id,
+            'position' => $request->position
+        ]);
+        return response()->json(['success' => true]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -21,15 +63,5 @@ class CardController extends Controller
         ]);
 
         return back();
-    }
-
-    public function move(Request $request, Card $card)
-    {
-        $card->update([
-            'task_list_id' => $request->list_id,
-            'position' => $request->position
-        ]);
-
-        return response()->json(['success' => true]);
     }
 }
