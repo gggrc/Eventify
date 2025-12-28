@@ -16,8 +16,11 @@
         <h1>Forgot your password?</h1>
         <p>Enter your email and we'll send a password reset link</p>
     </div>
-
+    
     <div class="card zoom-in">
+        <a href="{{ route('login') }}" class="btn-back-inline">
+            &larr;  Back to Login
+        </a>
 
         @if (session('status'))
             <div class="status">

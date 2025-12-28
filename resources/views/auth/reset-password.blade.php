@@ -18,6 +18,9 @@
     </div>
 
     <div class="card zoom-in">
+        <a href="{{ route('login') }}" class="btn-back-inline">
+            &larr;  Back to Login
+        </a>
 
         <form method="POST" action="{{ route('password.store') }}">
             @csrf

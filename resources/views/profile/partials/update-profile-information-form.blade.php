@@ -1,10 +1,7 @@
 <section>
-    <a href="{{ route('dashboard') }}" class="back-to-board" style=" color:#4f46e5;">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width:20px; height:20px; margin-right:8px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span>Back to Board</span>
-        </a>
+            <a href="{{ route('dashboard') }}" class="btn-back-inline">
+                &larr;  Back to Login
+            </a>
     <header>
         <h2 class="section-title">{{ __('Profile Information') }}</h2>
         <p class="section-description">{{ __("Update your account's profile information and email address.") }}</p>
