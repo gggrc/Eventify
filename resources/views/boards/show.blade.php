@@ -16,22 +16,25 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="app-wrapper">
         <header class="dashboard-header">
             <div class="logo">Eventify</div>
+
             <div class="user-menu">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="flex items-center gap-2 border-none bg-transparent cursor-pointer">
+                        <button class="flex items-center gap-2">
                             <div class="user-name">{{ Auth::user()->name }}</div>
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="avatar-img">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="header-avatar">
                         </button>
                     </x-slot>
+
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">Log Out</x-dropdown-link>
+                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                                Log Out
+                            </x-dropdown-link>
                         </form>
                     </x-slot>
                 </x-dropdown>
@@ -46,7 +49,8 @@
                 <a href="{{ route('dashboard') }}" class="btn-back">Back to Dashboard</a>
             </div>
         </header>
-
+        
+    <div class="app-wrapper">
         <main class="kanban-board" id="kanban-container">
             @php $colors = ['purple', 'blue', 'orange', 'red']; @endphp
 
@@ -177,7 +181,6 @@
         let activeCardId = null;
 
         function initDragAndDrop() {
-            // --- CARD DRAG AND DROP ---
             document.querySelectorAll('.card').forEach(card => {
                 card.addEventListener('dragstart', (e) => {
                     e.stopPropagation();
@@ -208,15 +211,13 @@
                     const cardId = draggingCard.dataset.cardId;
                     const newListId = listArea.dataset.listId;
                     
-                    // Ambil semua kartu di list tersebut untuk mendapatkan urutan baru
                     const cardsInList = Array.from(listArea.querySelectorAll('.card'));
                     const cardOrder = cardsInList.map((card, index) => {
                         return { id: card.dataset.cardId, position: index };
                     });
 
                     const position = cardsInList.indexOf(draggingCard);
-
-                    // Langsung update angka di UI tanpa menunggu respons server (Optimistic UI)
+    
                     updateColumnCounts();
 
                     try {
@@ -230,22 +231,18 @@
                             body: JSON.stringify({ 
                                 list_id: newListId, 
                                 position: position,
-                                card_order: cardOrder // Kirim urutan lengkap ke server
+                                card_order: cardOrder 
                             })
                         });
                     } catch (error) { 
                         console.error('Move error:', error);
-                        // Opsional: refresh jika error untuk sinkronisasi ulang
-                        // location.reload(); 
                     }
                 });
             });
 
-            // --- LIST (COLUMN) DRAG AND DROP ---
             const kanbanContainer = document.getElementById('kanban-container');
             document.querySelectorAll('.column-draggable').forEach(column => {
                 column.addEventListener('dragstart', (e) => {
-                    // Prevent dragging cards from triggering list drag
                     if (e.target.classList.contains('card')) return;
                     column.classList.add('dragging-list');
                 });
@@ -290,7 +287,6 @@
             });
         }
 
-        // Helper for Card position
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
             return draggableElements.reduce((closest, child) => {
@@ -302,7 +298,6 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // Helper for Column position
         function getDragAfterElementList(container, x) {
             const draggableElements = [...container.querySelectorAll('.column-draggable:not(.dragging-list)')];
             return draggableElements.reduce((closest, child) => {
