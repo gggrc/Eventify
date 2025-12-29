@@ -1,6 +1,6 @@
 * {
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 body {
@@ -98,7 +98,9 @@ body {
     border: none;
     font-size: 15px;
     cursor: pointer;
-    transition: background 0.3s, color 0.3s;
+    transition:
+        background 0.3s,
+        color 0.3s;
 }
 
 .btn-logout:hover {

@@ -1,13 +1,13 @@
 body {
     background-color: #f9fafb;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     margin: 0;
 }
 
 .dashboard-header {
     padding: 1rem 6%;
     background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,7 +17,7 @@ body {
 .logo {
     font-weight: 900;
     font-size: 2rem;
-    color: #4F46E5;
+    color: #4f46e5;
 }
 
 .user-menu button {
@@ -84,7 +84,7 @@ body {
 }
 
 .btn-create-project {
-    background: #4F46E5;
+    background: #4f46e5;
     color: white;
     padding: 10px 20px;
     border-radius: 6px;
@@ -97,7 +97,7 @@ body {
 }
 
 .btn-create-project:hover {
-    background: #4338CA;
+    background: #4338ca;
 }
 
 .project-grid {
@@ -116,13 +116,13 @@ body {
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid #f3f4f6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transition: all 0.2s;
 }
 
 .project-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
@@ -136,7 +136,7 @@ body {
 .card-title {
     font-weight: 700;
     font-size: 1.25rem;
-    color: #4F46E5;
+    color: #4f46e5;
     margin: 0;
 }
 
@@ -150,7 +150,7 @@ body {
 }
 
 .card-description {
-    color: #6B7280;
+    color: #6b7280;
     font-size: 0.9rem;
     line-height: 1.5;
     margin-bottom: 1.5rem;
@@ -174,7 +174,9 @@ body {
     padding: 10px 14px;
     width: 300px;
     font-size: 0.95rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 
 .project-input:focus {
@@ -185,8 +187,8 @@ body {
 
 .fixed.inset-0.z-50 {
     display: flex;
-    align-items: center;      
-    justify-content: center;  
+    align-items: center;
+    justify-content: center;
     padding: 1rem;
 }
 
@@ -277,7 +279,7 @@ body {
 
 .btn-submit-blue {
     padding: 10px 24px;
-    background-color: #4f46e5; 
+    background-color: #4f46e5;
     color: #ffffff;
     font-weight: 400;
     border-radius: 8px;
@@ -313,8 +315,8 @@ body {
 .owner-avatar {
     width: 28px;
     height: 28px;
-    background: #EEF2FF;
-    color: #4F46E5;
+    background: #eef2ff;
+    color: #4f46e5;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -354,7 +356,7 @@ body {
     .dashboard-main {
         padding: 1rem 3%;
     }
-    .dashboard-header, 
+    .dashboard-header,
     .dashboard-title-section {
         flex-direction: column;
         align-items: flex-start;
