@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - Eventify</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body x-data="{ search: '' }" class="bg-gray-50 text-gray-900">
@@ -50,7 +52,7 @@
         </div>
         <div id="project-grid" class="project-grid">
             @forelse($activeBoards as $board)
-                <div class="project-card-wrapper relative cursor-move" 
+                <div id="board-container-{{ $board->id }}" class="project-card-wrapper relative cursor-move" 
                      data-id="{{ $board->id }}"
                      x-show="search === '' || '{{ strtolower($board->title) }}'.includes(search.toLowerCase())"
                      x-data="{ menuOpen: false }">
@@ -73,13 +75,10 @@
                                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                             Edit
                                         </button>
-                                        <form method="POST" action="{{ route('boards.destroy', $board) }}" onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                                Delete
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="deleteBoard({{ $board->id }})" 
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -128,14 +127,14 @@
             @endforelse
         </div>
 
-        <div class="mt-20 mb-4  pt-8">
+        <div class="mt-20 mb-4 pt-8">
             <h2 class="text-xl font-bold text-gray-500 flex items-center gap-2">
                 Inactive Projects
             </h2>
         </div>
         <div id="inactive-project-grid" class="project-grid">
             @forelse($inactiveBoards as $board)
-                <div class="project-card-wrapper relative cursor-move" 
+                <div id="board-container-{{ $board->id }}" class="project-card-wrapper relative cursor-move" 
                      data-id="{{ $board->id }}"
                      x-show="search === '' || '{{ strtolower($board->title) }}'.includes(search.toLowerCase())"
                      x-data="{ menuOpen: false }">
@@ -158,13 +157,10 @@
                                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                             Edit
                                         </button>
-                                        <form method="POST" action="{{ route('boards.destroy', $board) }}" onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                                Delete
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="deleteBoard({{ $board->id }})" 
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -226,57 +222,87 @@
     </x-modal>
 
     <script>
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        async function deleteBoard(boardId) {
+            const result = await Swal.fire({
+                title: 'Delete Project?',
+                text: "All associated data will be permanently deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, Delete it!',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/boards/${boardId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new URLSearchParams({
+                            '_method': 'DELETE'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const container = document.getElementById(`board-container-${boardId}`);
+                        if (container) container.remove();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'The project has been removed.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire('Error!', 'Could not delete project.', 'error');
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const createForm = document.getElementById('create-project-form-ajax');
             if (createForm) {
                 createForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const formData = new FormData(this);
-                    
                     try {
                         const response = await fetch("{{ route('boards.store') }}", {
                             method: "POST",
-                            headers: {
-                                "X-Requested-With": "XMLHttpRequest"
-                            },
+                            headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
                             body: formData
                         });
-                        
                         const result = await response.json();
-                        if (result.success) {
-                            window.location.href = result.redirect_url;
-                        }
+                        if (result.success) window.location.href = result.redirect_url;
                     } catch (error) {
-                        console.error('Error creating project:', error);
+                        console.error('Error:', error);
                     }
                 });
             }
-
-            const updateOrder = (gridElement) => {
-                let order = [];
-                gridElement.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
-                    order.push({
-                        id: el.getAttribute('data-id'),
-                        position: index
-                    });
-                });
-
-                fetch("{{ route('boards.reorder') }}", {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({ order: order })
-                });
-            };
 
             const activeGrid = document.getElementById('project-grid');
             if (activeGrid) {
                 new Sortable(activeGrid, {
                     animation: 150,
                     ghostClass: 'opacity-50',
-                    onEnd: () => updateOrder(activeGrid)
+                    onEnd: () => {
+                        let order = [];
+                        activeGrid.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
+                            order.push({ id: el.getAttribute('data-id'), position: index });
+                        });
+                        fetch("{{ route('boards.reorder') }}", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken, "Accept": "application/json" },
+                            body: JSON.stringify({ order: order })
+                        });
+                    }
                 });
             }
 
@@ -285,7 +311,17 @@
                 new Sortable(inactiveGrid, {
                     animation: 150,
                     ghostClass: 'opacity-50',
-                    onEnd: () => updateOrder(inactiveGrid)
+                    onEnd: () => {
+                        let order = [];
+                        inactiveGrid.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
+                            order.push({ id: el.getAttribute('data-id'), position: index });
+                        });
+                        fetch("{{ route('boards.reorder') }}", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken, "Accept": "application/json" },
+                            body: JSON.stringify({ order: order })
+                        });
+                    }
                 });
             }
         });

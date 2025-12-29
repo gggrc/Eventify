@@ -57,24 +57,24 @@
             @foreach($board->taskLists as $index => $list)
                 <section class="kanban-column {{ $colors[$index % 4] }} column-draggable" draggable="true" data-list-id="{{ $list->id }}">
                     <div class="column-header">
-    <div class="flex-grow cursor-pointer group" onclick="editListTitle(event, {{ $list->id }})">
-        <h3 class="column-title" id="list-title-text-{{ $list->id }}">
-            {{ $list->title }} <span>{{ $list->cards->count() }}</span>
-        </h3>
-        <input type="text" 
-               id="list-title-input-{{ $list->id }}" 
-               class="list-title-edit-input" 
-               value="{{ $list->title }}" 
-               style="display: none;" 
-               onblur="saveListTitle({{ $list->id }})"
-               onkeydown="if(event.key === 'Enter') saveListTitle({{ $list->id }})">
-    </div>
-    <div class="flex gap-2 items-center">
-        <button type="button" onclick="confirmDeleteList({{ $list->id }})" class="text-gray-400 hover:text-red-500">
-            <i class="fa-solid fa-trash-can text-xs"></i>
-        </button>
-    </div>
-</div>
+                        <div class="flex-grow cursor-pointer group" onclick="editListTitle(event, {{ $list->id }})">
+                            <h3 class="column-title" id="list-title-text-{{ $list->id }}">
+                                {{ $list->title }} <span>{{ $list->cards->count() }}</span>
+                            </h3>
+                            <input type="text" 
+                                   id="list-title-input-{{ $list->id }}" 
+                                   class="list-title-edit-input" 
+                                   value="{{ $list->title }}" 
+                                   style="display: none;" 
+                                   onblur="saveListTitle({{ $list->id }})"
+                                   onkeydown="if(event.key === 'Enter') saveListTitle({{ $list->id }})">
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <button type="button" onclick="confirmDeleteList({{ $list->id }})" class="text-gray-400 hover:text-red-500">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="cards-area card-list" id="list-{{ $list->id }}" data-list-id="{{ $list->id }}">
                         @foreach($list->cards as $card)
@@ -139,7 +139,7 @@
             <div class="modal-card-header">
                 <div class="flex-grow">
                     <div class="modal-label-group">
-                        <span class="modal-label-text">Task Details</span>
+                        <span class="modal-label-text">Card Details</span>
                     </div>
                     <input type="text" id="modalTitle" class="modal-title-input" placeholder="Task Title">
                 </div>
@@ -152,7 +152,7 @@
                 <div class="grid grid-cols-1 gap-6">
                     <div>
                         <label class="modal-section-title">Description</label>
-                        <textarea id="modalDescription" class="modal-desc-area" placeholder="Add detailed description..."></textarea>
+                        <textarea id="modalDescription" class="modal-desc-area" placeholder="Add a more detailed description..."></textarea>
                     </div>
                     
                     <div>
@@ -168,7 +168,7 @@
                 <div class="mt-6">
                     <label class="modal-section-title">Checklist</label>
                     <div id="checklistItems" class="checklist-items-container"></div>
-                    <button onclick="addChecklistItem()" class="btn-add-checklist-item">+ Add Item</button>
+                    <button onclick="addChecklistItem()" class="btn-add-checklist-item">+ Add an item</button>
                 </div>
             </div>
 
@@ -354,69 +354,10 @@
             } catch (error) { console.error('Error:', error); }
         }
 
-        async function saveCardChanges() {
-    if (!activeCardId) return;
-
-    const title = document.getElementById('modalTitle').value;
-    const description = document.getElementById('modalDescription').value;
-    const priority = document.getElementById('modalPriority').value;
-    
-    const tasks = [];
-    document.querySelectorAll('#checklistItems .checklist-item-row').forEach(item => {
-        const tTitle = item.querySelector('.task-title-input-field').value;
-        if (tTitle.trim() !== "") {
-            tasks.push({
-                title: tTitle,
-                is_completed: item.querySelector('.task-check').checked
-            });
-        }
-    });
-
-    try {
-        const res = await fetch(`/cards/${activeCardId}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ title, description, priority, tasks })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            const cardElement = document.querySelector(`.card[data-card-id="${activeCardId}"]`);
-            
-            if (cardElement) {
-                cardElement.querySelector('.title').innerText = data.card.title;
-                const priorityBadge = cardElement.querySelector('.badge-priority');
-                priorityBadge.innerText = data.card.priority;
-                priorityBadge.className = `badge-priority priority-${data.card.priority.toLowerCase()}`;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Tersimpan!',
-                text: 'Perubahan kartu berhasil diperbarui.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-
-            closeModal();
-        }
-    } catch (error) { 
-        console.error('Save error:', error);
-        Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan perubahan.', 'error');
-    }
-}
-
         async function submitListAjax(event) {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
-            const container = document.getElementById('kanban-container');
             const addListSection = document.getElementById('list-container-main');
 
             try {
@@ -432,7 +373,12 @@
                     const listHtml = `
                         <section class="kanban-column ${nextColor} column-draggable" draggable="true" data-list-id="${data.list.id}">
                             <div class="column-header">
-                                <h3 class="column-title">${data.list.title} <span>0</span></h3>
+                                <div class="flex-grow cursor-pointer group" onclick="editListTitle(event, ${data.list.id})">
+                                    <h3 class="column-title" id="list-title-text-${data.list.id}">
+                                        ${data.list.title} <span>0</span>
+                                    </h3>
+                                    <input type="text" id="list-title-input-${data.list.id}" class="list-title-edit-input" value="${data.list.title}" style="display: none;" onblur="saveListTitle(${data.list.id})" onkeydown="if(event.key === 'Enter') saveListTitle(${data.list.id})">
+                                </div>
                                 <div class="flex gap-2 items-center">
                                     <button type="button" onclick="confirmDeleteList(${data.list.id})" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash-can text-xs"></i></button>
                                 </div>
@@ -461,54 +407,184 @@
             } catch (error) { console.error('Error:', error); }
         }
 
-function editListTitle(event, listId) {
-    const titleText = document.getElementById(`list-title-text-${listId}`);
-    const titleInput = document.getElementById(`list-title-input-${listId}`);
-
-    titleText.style.display = 'none';
-    titleInput.style.display = 'block';
-    titleInput.focus();
-    titleInput.select(); 
-}
-
-async function saveListTitle(listId) {
-    const titleText = document.getElementById(`list-title-text-${listId}`);
-    const titleInput = document.getElementById(`list-title-input-${listId}`);
-    const newTitle = titleInput.value.trim();
-
-    if (newTitle === "") {
-        titleInput.style.display = 'none';
-        titleText.style.display = 'block';
-        return;
-    }
-
-    try {
-        const response = await fetch(`/lists/${listId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ title: newTitle })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            const cardCount = titleText.querySelector('span').innerText;
-            titleText.innerHTML = `${data.list.title} <span>${cardCount}</span>`;
-        } else {
-            alert('Gagal memperbarui judul.');
+        function confirmDeleteList(listId) {
+            Swal.fire({
+                title: 'Delete List?',
+                text: "All cards in this list will be permanently deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Delete it!',
+                cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/lists/${listId}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            document.querySelector(`.kanban-column[data-list-id="${listId}"]`).remove();
+                            Swal.fire('Deleted!', 'The list has been deleted.', 'success');
+                        }
+                    } catch (error) { console.error('Delete list error:', error); }
+                }
+            });
         }
-    } catch (error) {
-        console.error('Error updating list title:', error);
-    } finally {
-        titleInput.style.display = 'none';
-        titleText.style.display = 'block';
-    }
-}
+
+        function editListTitle(event, listId) {
+            const titleText = document.getElementById(`list-title-text-${listId}`);
+            const titleInput = document.getElementById(`list-title-input-${listId}`);
+            titleText.style.display = 'none';
+            titleInput.style.display = 'block';
+            titleInput.focus();
+            titleInput.select(); 
+        }
+
+        async function saveListTitle(listId) {
+            const titleText = document.getElementById(`list-title-text-${listId}`);
+            const titleInput = document.getElementById(`list-title-input-${listId}`);
+            const newTitle = titleInput.value.trim();
+
+            if (newTitle === "") {
+                titleInput.style.display = 'none';
+                titleText.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/lists/${listId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: JSON.stringify({ title: newTitle })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const count = titleText.querySelector('span').innerText;
+                    titleText.innerHTML = `${data.list.title} <span>${count}</span>`;
+                }
+            } catch (error) { console.error('Update list error:', error); }
+            finally {
+                titleInput.style.display = 'none';
+                titleText.style.display = 'block';
+            }
+        }
+
+        async function openCardModal(cardId) {
+            activeCardId = cardId;
+            try {
+                const res = await fetch(`/cards/${cardId}`, { headers: { 'Accept': 'application/json' } });
+                const card = await res.json();
+                
+                document.getElementById('modalTitle').value = card.title;
+                document.getElementById('modalDescription').value = card.description || '';
+                document.getElementById('modalPriority').value = card.priority || 'Low';
+                
+                const checklistContainer = document.getElementById('checklistItems');
+                checklistContainer.innerHTML = '';
+                (card.tasks || []).forEach(task => addChecklistItem(task.title, task.is_completed));
+                
+                document.getElementById('cardModal').classList.add('active');
+            } catch (e) { console.error('Error opening modal:', e); }
+        }
+
+        function closeModal() { 
+            document.getElementById('cardModal').classList.remove('active'); 
+            activeCardId = null; 
+        }
+
+        function addChecklistItem(title = '', isCompleted = false) {
+            const container = document.getElementById('checklistItems');
+            const row = document.createElement('div');
+            row.className = 'checklist-item-row flex items-center gap-2 mb-2';
+            row.innerHTML = `
+                <input type="checkbox" class="task-check" ${isCompleted ? 'checked' : ''}>
+                <input type="text" class="task-title-input-field flex-grow" placeholder="What needs to be done?" value="${title}">
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            `;
+            container.appendChild(row);
+        }
+
+        async function saveCardChanges() {
+            if (!activeCardId) return;
+
+            const title = document.getElementById('modalTitle').value;
+            const description = document.getElementById('modalDescription').value;
+            const priority = document.getElementById('modalPriority').value;
+            
+            const tasks = [];
+            document.querySelectorAll('#checklistItems .checklist-item-row').forEach(item => {
+                const tTitle = item.querySelector('.task-title-input-field').value;
+                if (tTitle.trim() !== "") {
+                    tasks.push({
+                        title: tTitle,
+                        is_completed: item.querySelector('.task-check').checked
+                    });
+                }
+            });
+
+            try {
+                const res = await fetch(`/cards/${activeCardId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ title, description, priority, tasks })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    const cardElement = document.querySelector(`.card[data-card-id="${activeCardId}"]`);
+                    if (cardElement) {
+                        cardElement.querySelector('.title').innerText = data.card.title;
+                        const badge = cardElement.querySelector('.badge-priority');
+                        badge.innerText = data.card.priority;
+                        badge.className = `badge-priority priority-${data.card.priority.toLowerCase()}`;
+                    }
+                    Swal.fire({ icon: 'success', title: 'Saved!', timer: 1000, showConfirmButton: false });
+                    closeModal();
+                }
+            } catch (error) { 
+                console.error('Save card error:', error);
+                Swal.fire('Error!', 'Something went wrong while saving.', 'error');
+            }
+        }
+
+        async function deleteCard() {
+            if (!activeCardId) return;
+
+            Swal.fire({
+                title: 'Delete Card?',
+                text: "This card will be removed permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, Delete it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/cards/${activeCardId}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            document.querySelector(`.card[data-card-id="${activeCardId}"]`).remove();
+                            updateColumnCounts();
+                            closeModal();
+                            Swal.fire('Deleted!', 'The card has been deleted.', 'success');
+                        }
+                    } catch (error) { console.error('Delete card error:', error); }
+                }
+            });
+        }
 
         function openAddTask(listId) {
             document.querySelector(`#task-container-${listId} .add-task-trigger`).style.display = 'none';
@@ -530,22 +606,6 @@ async function saveListTitle(listId) {
             document.querySelector('#list-container-main .add-list-trigger').style.display = 'flex';
             document.getElementById('list-form-main').style.display = 'none';
         }
-
-        async function openCardModal(cardId) {
-            activeCardId = cardId;
-            try {
-                const res = await fetch(`/cards/${cardId}`, { headers: { 'Accept': 'application/json' } });
-                const card = await res.json();
-                document.getElementById('modalTitle').value = card.title;
-                document.getElementById('modalDescription').value = card.description || '';
-                document.getElementById('modalPriority').value = card.priority || 'Low';
-                const checklistContainer = document.getElementById('checklistItems');
-                checklistContainer.innerHTML = '';
-                (card.tasks || []).forEach(task => addChecklistItem(task.title, task.is_completed));
-                document.getElementById('cardModal').classList.add('active');
-            } catch (e) { console.error('Error:', e); }
-        }
-        function closeModal() { document.getElementById('cardModal').classList.remove('active'); activeCardId = null; }
 
         document.addEventListener('DOMContentLoaded', initDragAndDrop);
     </script>
