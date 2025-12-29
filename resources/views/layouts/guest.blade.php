@@ -18,6 +18,7 @@
             {{ $slot }}
         </div>
     </div>
+    
     <script src="{{ asset('js/password.js') }}"></script>
 </body>
 </html>
