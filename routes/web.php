@@ -15,7 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/boards', [BoardController::class, 'store'])->name('boards.store');
     Route::put('/boards/{board}', [BoardController::class, 'update'])->name('boards.update');
     Route::delete('/boards/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
-    Route::get('/boards/{board}', [BoardController::class, 'show'])->name('boards.show');
+    Route::get('/project', [BoardController::class, 'show'])->name('boards.show');
 
     Route::post('/lists', [BoardController::class, 'storeList'])->name('lists.store');
     Route::patch('/lists/reorder', [BoardController::class, 'reorderLists'])->name('lists.reorder');

@@ -85,7 +85,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('boards.show', $board) }}" class="block mt-4">
+                        <a href="{{ route('boards.show', ['id' => $board->hashid]) }}" class="block mt-4">
                             <p class="card-description">Manage this project.</p>
                             <div class="card-footer mt-4">
                                 <div class="owner-info">
@@ -227,7 +227,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Handle create project via AJAX
             const createForm = document.getElementById('create-project-form-ajax');
             if (createForm) {
                 createForm.addEventListener('submit', async function(e) {
@@ -245,7 +244,6 @@
                         
                         const result = await response.json();
                         if (result.success) {
-                            // Karena ini project baru, user dialihkan ke halaman project tersebut
                             window.location.href = result.redirect_url;
                         }
                     } catch (error) {
@@ -254,7 +252,6 @@
                 });
             }
 
-            // Fungsi untuk mengirim urutan baru ke server
             const updateOrder = (gridElement) => {
                 let order = [];
                 gridElement.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
@@ -274,7 +271,6 @@
                 });
             };
 
-            // Inisialisasi Sortable untuk Active Projects
             const activeGrid = document.getElementById('project-grid');
             if (activeGrid) {
                 new Sortable(activeGrid, {
@@ -284,7 +280,6 @@
                 });
             }
 
-            // Inisialisasi Sortable untuk Inactive Projects
             const inactiveGrid = document.getElementById('inactive-project-grid');
             if (inactiveGrid) {
                 new Sortable(inactiveGrid, {
