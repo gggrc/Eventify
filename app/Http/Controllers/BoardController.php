@@ -11,12 +11,17 @@ class BoardController extends Controller
 {
     public function index()
     {
-        $boards = Board::where('user_id', Auth::id())
-            ->orderBy('status', 'asc')
+        $activeBoards = Board::where('user_id', Auth::id())
+            ->where('status', 'active')
             ->orderBy('position', 'asc')
             ->get();
 
-        return view('dashboard', compact('boards'));
+        $inactiveBoards = Board::where('user_id', Auth::id())
+            ->where('status', 'inactive')
+            ->orderBy('position', 'asc')
+            ->get();
+
+        return view('dashboard', compact('activeBoards', 'inactiveBoards'));
     }
 
     public function reorderBoards(Request $request)

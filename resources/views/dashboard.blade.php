@@ -43,22 +43,24 @@
             </div>
         </div>
 
+        <div class="mt-8 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                Active Projects
+            </h2>
+        </div>
         <div id="project-grid" class="project-grid">
-            @forelse($boards as $board)
+            @forelse($activeBoards as $board)
                 <div class="project-card-wrapper relative cursor-move" 
                      data-id="{{ $board->id }}"
                      x-show="search === '' || '{{ strtolower($board->title) }}'.includes(search.toLowerCase())"
                      x-data="{ menuOpen: false }">
                     
-                    <div class="project-card {{ ($board->status ?? 'active') === 'inactive' ? 'bg-gray-100 opacity-75' : '' }}">
+                    <div class="project-card">
                         <div class="card-header flex justify-between items-start">
                             <h3 class="card-title">{{ $board->title }}</h3>
                             
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-1 text-xs font-bold rounded-md 
-                                    {{ ($board->status ?? 'active') === 'active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
-                                    {{ ucfirst($board->status ?? 'Active') }}
-                                </span>
+                                <span class="px-2 py-1 text-xs font-bold rounded-md bg-green-100 text-green-600">Active</span>
 
                                 <div class="relative">
                                     <button @click.prevent="menuOpen = !menuOpen" class="text-gray-400 hover:text-gray-600 p-1">
@@ -107,8 +109,8 @@
                                 <div class="mb-8">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                                     <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white outline-none">
-                                        <option value="active" {{ ($board->status ?? 'active') === 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ ($board->status ?? 'active') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                        <option value="active" {{ $board->status === 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ $board->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
                                     </select>
                                 </div>
                                 <div class="flex justify-end items-center gap-3">
@@ -120,8 +122,87 @@
                     </x-modal>
                 </div>
             @empty
-                <div class="empty-state">
-                    <p>No projects found. Create one to get started!</p>
+                <div class="empty-state col-span-full">
+                    <p>No active projects found.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <div class="mt-20 mb-4  pt-8">
+            <h2 class="text-xl font-bold text-gray-500 flex items-center gap-2">
+                Inactive Projects
+            </h2>
+        </div>
+        <div id="inactive-project-grid" class="project-grid">
+            @forelse($inactiveBoards as $board)
+                <div class="project-card-wrapper relative cursor-move" 
+                     data-id="{{ $board->id }}"
+                     x-show="search === '' || '{{ strtolower($board->title) }}'.includes(search.toLowerCase())"
+                     x-data="{ menuOpen: false }">
+                    
+                    <div class="project-card bg-gray-100 opacity-75 border-dashed border-2 border-gray-300">
+                        <div class="card-header flex justify-between items-start">
+                            <h3 class="card-title text-gray-500">{{ $board->title }}</h3>
+                            
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-1 text-xs font-bold rounded-md bg-red-100 text-red-600">Inactive</span>
+
+                                <div class="relative">
+                                    <button @click.prevent="menuOpen = !menuOpen" class="text-gray-400 hover:text-gray-600 p-1">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+
+                                    <div x-show="menuOpen" @click.away="menuOpen = false" x-cloak
+                                        class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50">
+                                        <button @click.prevent="$dispatch('open-modal', 'edit-project-{{ $board->id }}')" 
+                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Edit
+                                        </button>
+                                        <form method="POST" action="{{ route('boards.destroy', $board) }}" onsubmit="return confirm('Are you sure?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="card-description italic text-gray-400 text-sm">Project is currently disabled.</p>
+                        </div>
+                    </div>
+
+                    <x-modal name="edit-project-{{ $board->id }}" focusable>
+                        <div class="p-6 pb-8">
+                            <h2 class="text-lg font-bold text-gray-900 mb-6">Edit Project</h2>
+                            <form method="POST" action="{{ route('boards.update', $board) }}">
+                                @csrf
+                                @method('PUT')
+                                <div class="mb-5">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Project Name</label>
+                                    <input type="text" name="title" value="{{ $board->title }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" required>
+                                </div>
+                                <div class="mb-8">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                    <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white outline-none">
+                                        <option value="active" {{ $board->status === 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ $board->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="flex justify-end items-center gap-3">
+                                   <button type="button" x-on:click="$dispatch('close')" class="btn-cancel">Cancel</button>
+                                    <button type="submit" class="btn-submit-blue">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </x-modal>
+                </div>
+            @empty
+                <div class="empty-state col-span-full border-dashed border-2 border-gray-200 py-4">
+                    <p class="text-gray-400">No inactive projects.</p>
                 </div>
             @endforelse
         </div>
@@ -146,29 +227,43 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const grid = document.getElementById('project-grid');
-            if (grid) {
-                new Sortable(grid, {
+            // Fungsi untuk mengirim urutan baru ke server
+            const updateOrder = (gridElement) => {
+                let order = [];
+                gridElement.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
+                    order.push({
+                        id: el.getAttribute('data-id'),
+                        position: index
+                    });
+                });
+
+                fetch("{{ route('boards.reorder') }}", {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ order: order })
+                });
+            };
+
+            // Inisialisasi Sortable untuk Active Projects
+            const activeGrid = document.getElementById('project-grid');
+            if (activeGrid) {
+                new Sortable(activeGrid, {
                     animation: 150,
                     ghostClass: 'opacity-50',
-                    onEnd: function() {
-                        let order = [];
-                        document.querySelectorAll('.project-card-wrapper').forEach((el, index) => {
-                            order.push({
-                                id: el.getAttribute('data-id'),
-                                position: index
-                            });
-                        });
+                    onEnd: () => updateOrder(activeGrid)
+                });
+            }
 
-                        fetch("{{ route('boards.reorder') }}", {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                            },
-                            body: JSON.stringify({ order: order })
-                        });
-                    }
+            // Inisialisasi Sortable untuk Inactive Projects
+            const inactiveGrid = document.getElementById('inactive-project-grid');
+            if (inactiveGrid) {
+                new Sortable(inactiveGrid, {
+                    animation: 150,
+                    ghostClass: 'opacity-50',
+                    onEnd: () => updateOrder(inactiveGrid)
                 });
             }
         });
