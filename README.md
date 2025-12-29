@@ -1,59 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Eventify
+## Web-Based Project Management System 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Eventify is a modern web-based project management application built using **Laravel 12**.  
+The system allows users to manage projects through boards, task lists, and cards using a clean, responsive, and structured interface inspired by Trello.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. Introduction  
+2. System Overview  
+3. Features  
+4. Technology Stack  
+5. System Architecture  
+6. Project Structure  
+7. Installation and Setup  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 1. Introduction
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Eventify is designed to help individuals and teams organize tasks efficiently by visualizing workflows and project progress.  
+The application follows Laravel’s MVC architecture and uses **Blade Templates** for server-side rendering to ensure performance, maintainability, and scalability.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 2. System Overview
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+The system enables authenticated users to:
+- Create and manage project boards
+- Organize tasks into lists and cards
+- Move cards between lists to represent task progress
+- Manage user profiles securely
 
-### Premium Partners
+Eventify can be used as an academic project, a personal productivity tool, or as a foundation for a scalable team collaboration system.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 3. Features
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Project Boards
+- Create, update, reorder, and delete project boards
+- Persistent board ordering
 
-## Code of Conduct
+### Task Lists
+- Create and manage lists within project boards
+- Dynamic interactions without full page reload
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Task Cards
+- Create, edit, delete, and move cards between lists
+- Drag-and-drop functionality
 
-## Security Vulnerabilities
+### Authentication
+- User registration and login
+- Email verification
+- Password reset
+- Implemented using Laravel Breeze
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### User Profile Management
+- Update personal information
+- Change password securely
 
-## License
+### User Interface
+- Responsive and modern design
+- Server-rendered views using Blade Templates
+- Interactive components powered by Alpine.js
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 4. Technology Stack
+
+### Backend
+- PHP 8.2 or higher
+- Laravel 12
+
+### Frontend
+- Blade Templates
+- Tailwind CSS 4.0
+- Alpine.js
+
+### Build Tools
+- Vite
+
+### Additional Packages
+- vinkla/hashids – Secure ID obfuscation
+- laravel/breeze – Authentication scaffolding
+- axios – Asynchronous HTTP requests
+
+---
+
+## 5. System Architecture
+
+Eventify is built using the Model-View-Controller (MVC) architecture:
+- Models handle database interactions and business logic
+- Controllers manage HTTP requests and application flow
+- Views are rendered using Blade Templates
+- Routes define application endpoints
+- Middleware manages authentication and authorization
+
+This architecture ensures separation of concerns and improves maintainability.
+
+---
+
+## 6. Project Structure
+
+app/
+├── Http/
+│ ├── Controllers/
+│ ├── Middleware/
+├── Models/
+resources/
+├── views/
+│ ├── layouts/
+│ ├── dashboard/
+│ ├── boards/
+│ ├── profile/
+├── css/
+├── js/
+routes/
+├── web.php
+database/
+├── migrations/
+├── seeders/
+
+
+---
+
+## 7. Installation and Setup
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/gggrc/Eventify
+cd Eventify
+```
+
+### Step 2: Install Dependencies and Setup Project
+
+Run the following command to install all required dependencies and initialize the project.
+
+This command will:
+- Install Composer dependencies
+- Install NPM dependencies
+- Create the `.env` file
+- Generate the application key
+- Run database migrations
+- Build frontend assets
+
+```bash
+composer run setup
+```
+
+### Step 3: Run the Application
+
+You can start the application using one of the following methods.
+
+#### Option 1: Using Composer Script (Recommended)
+```bash
+composer run dev
+```
+
+#### Option 2: Using Default Laravel Server
+```bash
+php artisan serve
+```
+
+The application will be available at:
+```bash
+http://localhost:8000
+```
