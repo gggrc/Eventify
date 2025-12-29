@@ -1,57 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Forgot Password</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/forgotpass.css') }}">
-</head>
-<body>
+<x-guest-layout>
+    <x-slot name="title">Forgot Password</x-slot>
+    <x-slot name="headerTitle">Reset Password</x-slot>
+    <x-slot name="headerSubTitle">No problem. Just let us know your email address and we will email you a password reset link.</x-slot>
 
-<div class="page">
-    <div class="overlay"></div>
-
-    <div class="header fade-up">
-        <h1>Forgot your password?</h1>
-        <p>Enter your email and we'll send a password reset link</p>
+    <div class="mb-4">
+        <x-auth-session-status :status="session('status')" />
     </div>
-    
-    <div class="card zoom-in">
-        <a href="{{ route('login') }}" class="btn-back-inline">
-            &larr;  Back to Login
-        </a>
 
-        @if (session('status'))
-            <div class="status">
-                {{ session('status') }}
-            </div>
-        @endif
+    <form method="POST" action="{{ route('password.email') }}">
+        @csrf
 
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" placeholder="example@mail.com" required autofocus>
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value="{{ old('email') }}"
-                    placeholder="mail@mail.com"
-                    required
-                    autofocus
-                >
-                @error('email')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-            </div>
+        <div style="margin-top: 24px;">
+            <button type="submit" class="btn-primary">
+                Email Password Reset Link
+            </button>
+        </div>
 
-            <button type="submit" class="btn-primary">Send Reset Link</button>
-        </form>
-
-    </div>
-</div>
-
-</body>
-</html>
+        <p class="footer-text">
+            Remember your password? <a href="{{ route('login') }}">Back to Sign In</a>
+        </p>
+    </form>
+</x-guest-layout>

@@ -9,7 +9,9 @@ Route::get('/', function () {
 })->middleware('guest');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [BoardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [BoardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
     
     Route::patch('/boards/reorder', [BoardController::class, 'reorderBoards'])->name('boards.reorder'); 
     Route::post('/boards', [BoardController::class, 'store'])->name('boards.store');
