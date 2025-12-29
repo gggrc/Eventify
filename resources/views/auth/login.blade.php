@@ -3,11 +3,15 @@
     <x-slot name="headerTitle">Welcome Back!</x-slot>
     <x-slot name="headerSubTitle">Please enter your details to sign in</x-slot>
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
         @csrf
+        
         <div class="form-group">
             <label for="email">Email Address</label>
             <input id="email" type="email" name="email" value="{{ old('email') }}" placeholder="example@mail.com" required autofocus>
+            <span id="emailError" class="error-message" style="color: red; font-size: 0.8rem; display: block; margin-top: 5px;">
+                {{ $errors->first('email') }}
+            </span>
         </div>
 
         <div class="form-group">
@@ -19,6 +23,9 @@
                     <svg id="eye-l-c" class="hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.5 10.5a3 3 0 004.243 4.243M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-1.249 2.592"/></svg>
                 </button>
             </div>
+            <span id="passwordError" class="error-message" style="color: red; font-size: 0.8rem; display: block; margin-top: 5px;">
+                {{ $errors->first('password') }}
+            </span>
         </div>
 
         <div class="form-footer">
@@ -30,4 +37,6 @@
         <button type="submit" class="btn-primary">Sign In</button>
         <p class="footer-text">Don't have an account? <a href="{{ route('register') }}">Sign up</a></p>
     </form>
+
+    <script src="{{ asset('js/login.js') }}"></script>
 </x-guest-layout>
