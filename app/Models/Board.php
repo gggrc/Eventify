@@ -10,7 +10,7 @@ class Board extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'user_id'];
+    protected $fillable = ['title', 'user_id', 'status', 'position']; //
 
     public function taskLists(): HasMany
     {

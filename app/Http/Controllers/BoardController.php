@@ -11,8 +11,22 @@ class BoardController extends Controller
 {
     public function index()
     {
-        $boards = Board::where('user_id', Auth::id())->latest()->get();
+        $boards = Board::where('user_id', Auth::id())
+            ->orderBy('status', 'asc')
+            ->orderBy('position', 'asc')
+            ->get();
+
         return view('dashboard', compact('boards'));
+    }
+
+    public function reorderBoards(Request $request)
+    {
+        foreach ($request->order as $item) {
+            Board::where('id', $item['id'])
+                ->where('user_id', Auth::id())
+                ->update(['position' => $item['position']]);
+        }
+        return response()->json(['success' => true]);
     }
 
     public function show(Board $board)
@@ -32,10 +46,49 @@ class BoardController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|string|max:255']);
-        Board::create(['title' => $request->title, 'user_id' => Auth::id()]);
+        $request->validate([
+            'title' => 'required|string|max:255'
+        ]);
+
+        Board::create([
+            'title' => $request->title,
+            'user_id' => Auth::id(),
+            'status' => 'active' 
+        ]);
+
         return redirect()->route('dashboard')->with('success', 'Project created!');
     }
+
+    public function update(Request $request, Board $board)
+    {
+        if ($board->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'status' => 'required|in:active,inactive'
+        ]);
+
+        $board->update([
+            'title' => $request->title,
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Project updated!');
+    }
+
+    public function destroy(Board $board)
+    {
+        if ($board->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $board->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Project deleted!');
+    }
+
 
     public function storeList(Request $request)
     {

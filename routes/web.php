@@ -11,7 +11,10 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [BoardController::class, 'index'])->name('dashboard');
     
+    Route::patch('/boards/reorder', [BoardController::class, 'reorderBoards'])->name('boards.reorder'); 
     Route::post('/boards', [BoardController::class, 'store'])->name('boards.store');
+    Route::put('/boards/{board}', [BoardController::class, 'update'])->name('boards.update');
+    Route::delete('/boards/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
     Route::get('/boards/{board}', [BoardController::class, 'show'])->name('boards.show');
 
     Route::post('/lists', [BoardController::class, 'storeList'])->name('lists.store');
