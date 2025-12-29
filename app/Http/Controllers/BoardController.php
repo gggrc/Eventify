@@ -7,6 +7,7 @@ use App\Models\TaskList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Hashids\Hashids; 
+use Illuminate\Http\JsonResponse;
 
 class BoardController extends Controller
 {
@@ -14,9 +15,13 @@ class BoardController extends Controller
 
     public function __construct()
     {
+        // Menginisialisasi Hashids untuk enkripsi ID Board pada URL
         $this->hashids = new Hashids('eventify-secret-salt', 10);
     }
 
+    /**
+     * Menampilkan daftar Board di Dashboard.
+     */
     public function index()
     {
         $activeBoards = Board::where('user_id', Auth::id())
@@ -40,6 +45,9 @@ class BoardController extends Controller
         return view('dashboard', compact('activeBoards', 'inactiveBoards'));
     }
 
+    /**
+     * Menampilkan detail Board beserta Task Lists dan Cards di dalamnya.
+     */
     public function show(Request $request)
     {
         $hashid = $request->query('id');
@@ -53,6 +61,7 @@ class BoardController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
+        // Memuat relasi Task Lists dan Cards secara berurutan
         $board->load(['taskLists' => function($query) {
             $query->orderBy('position', 'asc')->with(['cards' => function($q) {
                 $q->orderBy('position', 'asc');
@@ -62,6 +71,9 @@ class BoardController extends Controller
         return view('boards.show', compact('board'));
     }
 
+    /**
+     * Menyimpan Board baru.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -87,6 +99,9 @@ class BoardController extends Controller
         return redirect()->route('boards.show', ['id' => $hashedId]);
     }
 
+    /**
+     * Memperbarui data Board.
+     */
     public function update(Request $request, Board $board)
     {
         if ($board->user_id !== Auth::id()) {
@@ -113,6 +128,9 @@ class BoardController extends Controller
         return back();
     }
 
+    /**
+     * Menghapus Board.
+     */
     public function destroy(Board $board)
     {
         if ($board->user_id !== Auth::id()) {
@@ -124,6 +142,9 @@ class BoardController extends Controller
         return redirect()->route('dashboard')->with('success', 'Project deleted!');
     }
 
+    /**
+     * Mengatur ulang urutan Board pada Dashboard.
+     */
     public function reorderBoards(Request $request)
     {
         foreach ($request->order as $item) {
@@ -134,7 +155,14 @@ class BoardController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function storeList(Request $request)
+    // ==========================================
+    // FUNGSI GABUNGAN UNTUK TASK LIST
+    // ==========================================
+
+    /**
+     * Menyimpan Task List baru (AJAX).
+     */
+    public function storeList(Request $request): JsonResponse
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -147,20 +175,42 @@ class BoardController extends Controller
             'position' => TaskList::where('board_id', $request->board_id)->count()
         ]);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'list' => [
-                    'id' => $list->id,
-                    'title' => $list->title,
-                ]
-            ]);
-        }
-
-        return back();
+        return response()->json([
+            'success' => true,
+            'list' => [
+                'id' => $list->id,
+                'title' => $list->title,
+            ]
+        ]);
     }
 
-    public function reorderLists(Request $request)
+    /**
+     * Memperbarui judul Task List (Fitur Edit Nama List).
+     */
+    public function updateList(Request $request, TaskList $list): JsonResponse
+    {
+        if (!$list->board || $list->board->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $list->update([
+            'title' => $validated['title']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'list' => $list
+        ]);
+    }
+
+    /**
+     * Mengatur ulang urutan Task List (Drag and Drop).
+     */
+    public function reorderLists(Request $request): JsonResponse
     {
         foreach ($request->order as $item) {
             TaskList::where('id', $item['id'])->update(['position' => $item['position']]);
@@ -168,7 +218,10 @@ class BoardController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function destroyList(TaskList $list)
+    /**
+     * Menghapus Task List.
+     */
+    public function destroyList(TaskList $list): JsonResponse
     {
         if (!$list->board || $list->board->user_id !== Auth::id()) {
             abort(403);
@@ -176,10 +229,6 @@ class BoardController extends Controller
 
         $list->delete();
         
-        if (request()->ajax()) {
-            return response()->json(['success' => true]);
-        }
-
-        return back()->with('success', 'List deleted!');
+        return response()->json(['success' => true]);
     }
 }

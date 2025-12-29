@@ -57,13 +57,24 @@
             @foreach($board->taskLists as $index => $list)
                 <section class="kanban-column {{ $colors[$index % 4] }} column-draggable" draggable="true" data-list-id="{{ $list->id }}">
                     <div class="column-header">
-                        <h3 class="column-title">{{ $list->title }} <span>{{ $list->cards->count() }}</span></h3>
-                        <div class="flex gap-2 items-center">
-                            <button type="button" onclick="confirmDeleteList({{ $list->id }})" class="text-gray-400 hover:text-red-500">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
+    <div class="flex-grow cursor-pointer group" onclick="editListTitle(event, {{ $list->id }})">
+        <h3 class="column-title" id="list-title-text-{{ $list->id }}">
+            {{ $list->title }} <span>{{ $list->cards->count() }}</span>
+        </h3>
+        <input type="text" 
+               id="list-title-input-{{ $list->id }}" 
+               class="list-title-edit-input" 
+               value="{{ $list->title }}" 
+               style="display: none;" 
+               onblur="saveListTitle({{ $list->id }})"
+               onkeydown="if(event.key === 'Enter') saveListTitle({{ $list->id }})">
+    </div>
+    <div class="flex gap-2 items-center">
+        <button type="button" onclick="confirmDeleteList({{ $list->id }})" class="text-gray-400 hover:text-red-500">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+        </button>
+    </div>
+</div>
 
                     <div class="cards-area card-list" id="list-{{ $list->id }}" data-list-id="{{ $list->id }}">
                         @foreach($list->cards as $card)
@@ -449,6 +460,55 @@
                 }
             } catch (error) { console.error('Error:', error); }
         }
+
+function editListTitle(event, listId) {
+    const titleText = document.getElementById(`list-title-text-${listId}`);
+    const titleInput = document.getElementById(`list-title-input-${listId}`);
+
+    titleText.style.display = 'none';
+    titleInput.style.display = 'block';
+    titleInput.focus();
+    titleInput.select(); 
+}
+
+async function saveListTitle(listId) {
+    const titleText = document.getElementById(`list-title-text-${listId}`);
+    const titleInput = document.getElementById(`list-title-input-${listId}`);
+    const newTitle = titleInput.value.trim();
+
+    if (newTitle === "") {
+        titleInput.style.display = 'none';
+        titleText.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/lists/${listId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ title: newTitle })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const cardCount = titleText.querySelector('span').innerText;
+            titleText.innerHTML = `${data.list.title} <span>${cardCount}</span>`;
+        } else {
+            alert('Gagal memperbarui judul.');
+        }
+    } catch (error) {
+        console.error('Error updating list title:', error);
+    } finally {
+        titleInput.style.display = 'none';
+        titleText.style.display = 'block';
+    }
+}
 
         function openAddTask(listId) {
             document.querySelector(`#task-container-${listId} .add-task-trigger`).style.display = 'none';

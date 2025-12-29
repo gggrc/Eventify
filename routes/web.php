@@ -20,7 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/project', [BoardController::class, 'show'])->name('boards.show');
 
     Route::post('/lists', [BoardController::class, 'storeList'])->name('lists.store');
-    Route::patch('/lists/reorder', [BoardController::class, 'reorderLists'])->name('lists.reorder');
+    Route::patch('/lists/{list}', [BoardController::class, 'updateList'])->name('lists.update');
+    Route::delete('/lists/{list}', [BoardController::class, 'destroyList'])->name('lists.destroy');
+    Route::patch('/lists-reorder', [BoardController::class, 'reorderLists'])->name('lists.reorder');
 
     Route::delete('/cards/{card}', [CardController::class, 'destroy'])->name('cards.destroy');
     Route::delete('/lists/{list}', [BoardController::class, 'destroyList'])->name('lists.destroy');
