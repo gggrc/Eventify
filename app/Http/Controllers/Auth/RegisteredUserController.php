@@ -14,25 +14,30 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'name' => strip_tags(trim($request->name)),
+            'email' => filter_var(trim($request->email), FILTER_SANITIZE_EMAIL),
+        ]);
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.required' => 'The name field is required.',
+            'email.required' => 'The email field is required.',
+            'email.email' => 'The email must be a valid email address.',
+            'email.unique' => 'The email has already been taken.',
+            'password.required' => 'The password field is required.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.min' => 'The password must be at least 8 characters.',
         ]);
 
         $user = User::create([
