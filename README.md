@@ -103,27 +103,32 @@ This architecture ensures separation of concerns and improves maintainability.
 ---
 
 ## 6. Project Structure
-
-app/
-├── Http/
-│ ├── Controllers/
-│ ├── Middleware/
-├── Models/
-resources/
-├── views/
-│ ├── layouts/
-│ ├── dashboard/
-│ ├── boards/
-│ ├── profile/
-├── css/
-├── js/
-routes/
-├── web.php
-database/
-├── migrations/
-├── seeders/
-
-
+```bash
+eventify/
+│── app/                 # Application core
+│   ├── Http/            # HTTP layer
+│   │   ├── Controllers/ # Application controllers
+│   │   └── Middleware/  # HTTP middleware
+│   └── Models/          # Eloquent models
+│
+│── resources/           # Frontend resources
+│   ├── views/           # Blade templates
+│   │   ├── layouts/     # Main layouts
+│   │   ├── dashboard/   # Dashboard pages
+│   │   ├── boards/      # Board-related views
+│   │   └── profile/     # User profile views
+│   ├── css/             # CSS files
+│   └── js/              # JavaScript files
+│
+│── routes/              # Application routes
+│   └── web.php          # Web routes
+│
+│── database/            # Database files
+│   ├── migrations/      # Database migrations
+│   └── seeders/         # Database seeders
+│
+└── README.md             # Project documentation
+```
 ---
 
 ## 7. Installation and Setup
