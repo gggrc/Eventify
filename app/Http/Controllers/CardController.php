@@ -37,8 +37,16 @@ class CardController extends Controller
                 }
             }
         }
-
-        return response()->json(['success' => true]);
+        
+        return response()->json([
+            'success' => true,
+            'card' => [
+                'id' => $card->id,
+                'title' => $card->title,
+                'priority' => $card->priority,
+                'updated_at' => $card->updated_at->format('D H:i')
+            ]
+        ]);
     }
 
     public function move(Request $request, Card $card)
@@ -64,13 +72,21 @@ class CardController extends Controller
             'task_list_id' => 'required|exists:task_lists,id'
         ]);
 
-        Card::create([
+        $card = Card::create([
             'title' => $request->title,
             'task_list_id' => $request->task_list_id,
             'position' => Card::where('task_list_id', $request->task_list_id)->count()
         ]);
 
-        return back();
+        return response()->json([
+            'success' => true,
+            'card' => [
+                'id' => $card->id,
+                'title' => $card->title,
+                'created_at' => $card->created_at->format('D H:i'),
+                'priority' => 'Low'
+            ]
+        ]);
     }
 
     public function destroy(Card $card)

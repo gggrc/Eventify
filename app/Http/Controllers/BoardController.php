@@ -49,39 +49,50 @@ class BoardController extends Controller
         return view('boards.show', compact('board'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255'
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+    ]);
 
-        Board::create([
-            'title' => $request->title,
-            'user_id' => Auth::id(),
-            'status' => 'active' 
-        ]);
+    $board = Board::create([
+        'title' => $request->title,
+        'user_id' => auth()->id(),
+        'status' => 'active', 
+        'position' => Board::where('user_id', auth()->id())->count()
+    ]);
 
-        return redirect()->route('dashboard')->with('success', 'Project created!');
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('boards.show', $board->id)
+        ]);
     }
 
-    public function update(Request $request, Board $board)
-    {
-        if ($board->user_id !== Auth::id()) {
-            abort(403);
-        }
+    return redirect()->route('boards.show', $board->id);
+}
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive'
+public function update(Request $request, Board $board)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'status' => 'required|in:active,inactive', 
+    ]);
+
+    $board->update([
+        'title' => $request->title,
+        'status' => $request->status,
+    ]);
+
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'board' => $board
         ]);
-
-        $board->update([
-            'title' => $request->title,
-            'status' => $request->status
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Project updated!');
     }
+
+    return back();
+}
 
     public function destroy(Board $board)
     {
@@ -102,11 +113,21 @@ class BoardController extends Controller
             'board_id' => 'required|exists:boards,id'
         ]);
 
-        TaskList::create([
+        $list = TaskList::create([
             'title' => $request->title,
             'board_id' => $request->board_id,
             'position' => TaskList::where('board_id', $request->board_id)->count()
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'list' => [
+                    'id' => $list->id,
+                    'title' => $list->title,
+                ]
+            ]);
+        }
 
         return back();
     }

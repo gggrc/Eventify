@@ -211,7 +211,7 @@
     <x-modal name="create-project-modal" focusable>
         <div class="p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6">New Project</h2>
-            <form method="POST" action="{{ route('boards.store') }}">
+            <form id="create-project-form-ajax">
                 @csrf
                 <div class="mb-6">
                     <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Project Name</label>
@@ -227,6 +227,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Handle create project via AJAX
+            const createForm = document.getElementById('create-project-form-ajax');
+            if (createForm) {
+                createForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    
+                    try {
+                        const response = await fetch("{{ route('boards.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            // Karena ini project baru, user dialihkan ke halaman project tersebut
+                            window.location.href = result.redirect_url;
+                        }
+                    } catch (error) {
+                        console.error('Error creating project:', error);
+                    }
+                });
+            }
+
             // Fungsi untuk mengirim urutan baru ke server
             const updateOrder = (gridElement) => {
                 let order = [];

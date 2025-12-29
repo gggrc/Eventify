@@ -16,39 +16,39 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-        <header class="dashboard-header">
-            <div class="logo">Eventify</div>
+    <header class="dashboard-header">
+        <div class="logo">Eventify</div>
 
-            <div class="user-menu">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="flex items-center gap-2">
-                            <div class="user-name">{{ Auth::user()->name }}</div>
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="header-avatar">
-                        </button>
-                    </x-slot>
+        <div class="user-menu">
+            <x-dropdown align="right" width="48">
+                <x-slot name="trigger">
+                    <button class="flex items-center gap-2">
+                        <div class="user-name">{{ Auth::user()->name }}</div>
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" alt="avatar" class="header-avatar">
+                    </button>
+                </x-slot>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
-                                Log Out
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-        </header>
+                <x-slot name="content">
+                    <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                            Log Out
+                        </x-dropdown-link>
+                    </form>
+                </x-slot>
+            </x-dropdown>
+        </div>
+    </header>
 
-        <header class="topbar">
-            <div class="topbar-left">
-                <h2>{{ $board->title }}</h2>
-            </div>
-            <div class="topbar-right">
-                <a href="{{ route('dashboard') }}" class="btn-back">Back to Dashboard</a>
-            </div>
-        </header>
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>{{ $board->title }}</h2>
+        </div>
+        <div class="topbar-right">
+            <a href="{{ route('dashboard') }}" class="btn-back">Back to Dashboard</a>
+        </div>
+    </header>
         
     <div class="app-wrapper">
         <main class="kanban-board" id="kanban-container">
@@ -85,7 +85,7 @@
                         </button>
 
                         <div id="task-form-wrapper-{{ $list->id }}" class="task-form-wrapper" style="display: none;">
-                            <form action="{{ route('cards.store') }}" method="POST">
+                            <form onsubmit="submitCardAjax(event, {{ $list->id }})">
                                 @csrf
                                 <input type="hidden" name="task_list_id" value="{{ $list->id }}">
                                 <textarea name="title" class="task-input-textarea" placeholder="Enter a title for this card..." required></textarea>
@@ -107,7 +107,7 @@
                 </button>
 
                 <div id="list-form-main" class="list-input-form" style="display: none;">
-                    <form action="{{ route('lists.store') }}" method="POST">
+                    <form onsubmit="submitListAjax(event)">
                         @csrf
                         <input type="hidden" name="board_id" value="{{ $board->id }}">
                         <input type="text" name="title" class="list-entry-input" placeholder="Enter list title..." required>
@@ -155,13 +155,9 @@
                 </div>
 
                 <div class="mt-6">
-                    <label class="modal-section-title">
-                        Checklist
-                    </label>
+                    <label class="modal-section-title">Checklist</label>
                     <div id="checklistItems" class="checklist-items-container"></div>
-                    <button onclick="addChecklistItem()" class="btn-add-checklist-item">
-                        + Add Item
-                    </button>
+                    <button onclick="addChecklistItem()" class="btn-add-checklist-item">+ Add Item</button>
                 </div>
             </div>
 
@@ -217,7 +213,6 @@
                     });
 
                     const position = cardsInList.indexOf(draggingCard);
-    
                     updateColumnCounts();
 
                     try {
@@ -277,7 +272,7 @@
                 if (!draggingList) return;
 
                 const afterElement = getDragAfterElementList(kanbanContainer, e.clientX);
-                const addSection = document.querySelector('.add-list-section');
+                const addSection = document.getElementById('list-container-main');
                 
                 if (afterElement == null) {
                     kanbanContainer.insertBefore(draggingList, addSection);
@@ -309,82 +304,150 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        async function confirmDeleteList(listId) {
-            const result = await Swal.fire({
-                title: 'Delete List?',
-                text: "All cards in this list will also be deleted!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/lists/${listId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        Swal.fire('Deleted!', 'The list has been deleted.', 'success')
-                            .then(() => location.reload());
-                    }
-                } catch (error) {
-                    Swal.fire('Error!', 'An error occurred while deleting.', 'error');
-                }
-            }
-        }
-
-        async function openCardModal(cardId) {
-            activeCardId = cardId;
-            try {
-                const res = await fetch(`/cards/${cardId}`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const card = await res.json();
-                
-                document.getElementById('modalTitle').value = card.title;
-                document.getElementById('modalDescription').value = card.description || '';
-                document.getElementById('modalPriority').value = card.priority || 'Low';
-
-                const checklistContainer = document.getElementById('checklistItems');
-                checklistContainer.innerHTML = '';
-                (card.tasks || []).forEach(task => addChecklistItem(task.title, task.is_completed));
-
-                document.getElementById('cardModal').classList.add('active');
-            } catch (e) { 
-                console.error('Error fetching card:', e);
-            }
-        }
-
-        function addChecklistItem(title = '', checked = false) {
-            const container = document.getElementById('checklistItems');
-            const div = document.createElement('div');
-            div.className = 'checklist-item-row group';
-            div.innerHTML = `
-                <input type="checkbox" class="task-check" ${checked ? 'checked' : ''}>
-                <input type="text" class="task-title-input-field" value="${title}" placeholder="Task name...">
-                <button onclick="this.parentElement.remove()" class="btn-delete-checklist-item">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-            `;
-            container.appendChild(div);
-        }
-
         function updateColumnCounts() {
             document.querySelectorAll('.kanban-column').forEach(column => {
                 const count = column.querySelectorAll('.card').length;
                 const countBadge = column.querySelector('.column-title span');
-                if (countBadge) {
-                    countBadge.innerText = count;
-                }
+                if (countBadge) countBadge.innerText = count;
             });
+        }
+
+        async function submitCardAjax(event, listId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const textarea = form.querySelector('textarea');
+
+            try {
+                const response = await fetch("{{ route('cards.store') }}", {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const cardHtml = `
+                        <div class="card" draggable="true" data-card-id="${data.card.id}" onclick="openCardModal(${data.card.id})">
+                            <p class="title">${data.card.title}</p>
+                            <div class="meta flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">${data.card.created_at}</span>
+                                <span class="badge-priority priority-low">Low</span>
+                            </div>
+                        </div>`;
+                    document.getElementById(`list-${listId}`).insertAdjacentHTML('beforeend', cardHtml);
+                    textarea.value = '';
+                    closeAddTask(listId);
+                    updateColumnCounts();
+                    initDragAndDrop();
+                }
+            } catch (error) { console.error('Error:', error); }
+        }
+
+        async function saveCardChanges() {
+    if (!activeCardId) return;
+
+    const title = document.getElementById('modalTitle').value;
+    const description = document.getElementById('modalDescription').value;
+    const priority = document.getElementById('modalPriority').value;
+    
+    const tasks = [];
+    document.querySelectorAll('#checklistItems .checklist-item-row').forEach(item => {
+        const tTitle = item.querySelector('.task-title-input-field').value;
+        if (tTitle.trim() !== "") {
+            tasks.push({
+                title: tTitle,
+                is_completed: item.querySelector('.task-check').checked
+            });
+        }
+    });
+
+    try {
+        const res = await fetch(`/cards/${activeCardId}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ title, description, priority, tasks })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            const cardElement = document.querySelector(`.card[data-card-id="${activeCardId}"]`);
+            
+            if (cardElement) {
+                cardElement.querySelector('.title').innerText = data.card.title;
+                const priorityBadge = cardElement.querySelector('.badge-priority');
+                priorityBadge.innerText = data.card.priority;
+                priorityBadge.className = `badge-priority priority-${data.card.priority.toLowerCase()}`;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Tersimpan!',
+                text: 'Perubahan kartu berhasil diperbarui.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            closeModal();
+        }
+    } catch (error) { 
+        console.error('Save error:', error);
+        Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan perubahan.', 'error');
+    }
+}
+
+        async function submitListAjax(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const container = document.getElementById('kanban-container');
+            const addListSection = document.getElementById('list-container-main');
+
+            try {
+                const response = await fetch("{{ route('lists.store') }}", {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const colors = ['purple', 'blue', 'orange', 'red'];
+                    const nextColor = colors[document.querySelectorAll('.kanban-column').length % 4];
+                    const listHtml = `
+                        <section class="kanban-column ${nextColor} column-draggable" draggable="true" data-list-id="${data.list.id}">
+                            <div class="column-header">
+                                <h3 class="column-title">${data.list.title} <span>0</span></h3>
+                                <div class="flex gap-2 items-center">
+                                    <button type="button" onclick="confirmDeleteList(${data.list.id})" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                </div>
+                            </div>
+                            <div class="cards-area card-list" id="list-${data.list.id}" data-list-id="${data.list.id}"></div>
+                            <div class="add-task-area" id="task-container-${data.list.id}">
+                                <button class="add-task-trigger" onclick="openAddTask(${data.list.id})"><i class="fa-solid fa-plus"></i> Add a card</button>
+                                <div id="task-form-wrapper-${data.list.id}" class="task-form-wrapper" style="display: none;">
+                                    <form onsubmit="submitCardAjax(event, ${data.list.id})">
+                                        @csrf
+                                        <input type="hidden" name="task_list_id" value="${data.list.id}">
+                                        <textarea name="title" class="task-input-textarea" placeholder="Enter a title..." required></textarea>
+                                        <div class="task-form-footer">
+                                            <button type="submit" class="btn-confirm-add">Add card</button>
+                                            <button type="button" class="btn-close-add" onclick="closeAddTask(${data.list.id})"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </section>`;
+                    addListSection.insertAdjacentHTML('beforebegin', listHtml);
+                    form.reset();
+                    hideListForm();
+                    initDragAndDrop();
+                }
+            } catch (error) { console.error('Error:', error); }
         }
 
         function openAddTask(listId) {
@@ -393,93 +456,36 @@
             wrapper.style.display = 'block';
             wrapper.querySelector('textarea').focus();
         }
-
         function closeAddTask(listId) {
             document.querySelector(`#task-container-${listId} .add-task-trigger`).style.display = 'flex';
             document.getElementById(`task-form-wrapper-${listId}`).style.display = 'none';
         }
-
         function showListForm() {
             document.querySelector('#list-container-main .add-list-trigger').style.display = 'none';
             const form = document.getElementById('list-form-main');
             form.style.display = 'block';
             form.querySelector('input[name="title"]').focus();
         }
-
         function hideListForm() {
             document.querySelector('#list-container-main .add-list-trigger').style.display = 'flex';
             document.getElementById('list-form-main').style.display = 'none';
         }
 
-        async function saveCardChanges() {
-            if(!activeCardId) return;
-            const title = document.getElementById('modalTitle').value;
-            const description = document.getElementById('modalDescription').value;
-            const priority = document.getElementById('modalPriority').value;
-            
-            const tasks = [];
-            document.querySelectorAll('#checklistItems .checklist-item-row').forEach(item => {
-                const tTitle = item.querySelector('.task-title-input-field').value;
-                if(tTitle.trim() !== "") {
-                    tasks.push({
-                        title: tTitle,
-                        is_completed: item.querySelector('.task-check').checked
-                    });
-                }
-            });
-
+        async function openCardModal(cardId) {
+            activeCardId = cardId;
             try {
-                const res = await fetch(`/cards/${activeCardId}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ title, description, priority, tasks })
-                });
-
-                if(res.ok) { location.reload(); }
-            } catch (error) { 
-                console.error('Save error:', error); 
-            }
+                const res = await fetch(`/cards/${cardId}`, { headers: { 'Accept': 'application/json' } });
+                const card = await res.json();
+                document.getElementById('modalTitle').value = card.title;
+                document.getElementById('modalDescription').value = card.description || '';
+                document.getElementById('modalPriority').value = card.priority || 'Low';
+                const checklistContainer = document.getElementById('checklistItems');
+                checklistContainer.innerHTML = '';
+                (card.tasks || []).forEach(task => addChecklistItem(task.title, task.is_completed));
+                document.getElementById('cardModal').classList.add('active');
+            } catch (e) { console.error('Error:', e); }
         }
-
-        async function deleteCard() {
-            if (!activeCardId) return;
-            const result = await Swal.fire({
-                title: 'Delete Card?',
-                text: "This action cannot be undone.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Delete'
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    const res = await fetch(`/cards/${activeCardId}`, {
-                        method: 'DELETE',
-                        headers: { 
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
-                    });
-                    if (res.ok) { location.reload(); }
-                } catch (error) { console.error('Delete error:', error); }
-            }
-        }
-
-        function closeModal() { 
-            document.getElementById('cardModal').classList.remove('active'); 
-            activeCardId = null; 
-        }
-        
-        function toggleForm(id) {
-            const form = document.getElementById(id);
-            form.style.display = form.style.display === 'block' ? 'none' : 'block';
-            if(form.style.display === 'block') form.querySelector('input').focus();
-        }
+        function closeModal() { document.getElementById('cardModal').classList.remove('active'); activeCardId = null; }
 
         document.addEventListener('DOMContentLoaded', initDragAndDrop);
     </script>
